@@ -1,9 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { X } from 'lucide-react';
-import {
-  loadStripe,
-  StripeCardElementOptions,
-} from '@stripe/stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import type { StripeCardElementOptions } from '@stripe/stripe-js';
 import {
   Elements,
   CardElement,
