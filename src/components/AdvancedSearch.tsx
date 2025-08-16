@@ -212,3 +212,6 @@ function AdvancedSearch({ onSearch, onClear }: AdvancedSearchProps) {
 
 export default AdvancedSearch;
 
+
+
+
