@@ -48,21 +48,28 @@ function Projects() {
   } = useForm<ProjectForm>();
 
   const onSubmit = async (data: ProjectForm) => {
-    const { teamMembers, ...rest } = data;
+    const { teamMembers, budget, ...rest } = data;
     const membersArray = teamMembers
       ? teamMembers.split(',').map(m => m.trim()).filter(Boolean)
       : [];
+    const numericBudget = Number(budget);
+    if (Number.isNaN(numericBudget)) {
+      toast.error('Budget must be a number');
+      return;
+    }
 
     try {
       if (editingProject) {
         await updateProject(editingProject.id, {
           ...rest,
+          budget: numericBudget,
           teamMembers: membersArray,
         });
         toast.success('Project updated successfully!');
       } else {
         await addProject({
           ...rest,
+          budget: numericBudget,
           teamMembers: membersArray,
         });
         toast.success('Project created successfully!');
@@ -212,6 +219,7 @@ function Projects() {
                 <input
                   {...register('budget', {
                     required: 'Budget is required',
+                    valueAsNumber: true,
                     min: { value: 0, message: 'Budget must be positive' },
                   })}
                   type="number"
