@@ -1,21 +1,20 @@
 import { useState, useEffect } from 'react';
-import { 
-  Users, 
-  FileText, 
-  DollarSign,
-  Activity
-} from 'lucide-react';
-import { getClients } from '../firebase/clients';
-import { getFiles } from '../firebase/files';
+import { Users, FileText, DollarSign, Activity } from 'lucide-react';
+import {
+  getMonthlyRevenue,
+  getProjectStatusCounts,
+  getMonthlyTaskCompletion,
+  getFileUploadStats,
+} from '../firebase/analytics';
 import { useAuth } from '../contexts/AuthContext';
 
 interface AnalyticsData {
   totalRevenue: number;
-  totalEmployees: number;
+  totalTasks: number;
   totalProjects: number;
   totalInvoices: number;
   monthlyRevenue: { month: string; revenue: number }[];
-  employeeGrowth: { month: string; employees: number }[];
+  taskGrowth: { month: string; tasks: number }[];
   projectStatus: { status: string; count: number }[];
   fileUploads: { month: string; uploads: number }[];
 }
@@ -23,70 +22,43 @@ interface AnalyticsData {
   function Analytics() {
     const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
     totalRevenue: 0,
-    totalEmployees: 0,
+    totalTasks: 0,
     totalProjects: 0,
     totalInvoices: 0,
     monthlyRevenue: [],
-    employeeGrowth: [],
+    taskGrowth: [],
     projectStatus: [],
-    fileUploads: []
+    fileUploads: [],
   });
     const [isLoading, setIsLoading] = useState(true);
     const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
     const { currentUser } = useAuth();
 
   useEffect(() => {
-      const fetchAnalyticsData = async () => {
-        if (!currentUser) return;
-        try {
-          setIsLoading(true);
-        
-        // Fetch real data from Firebase
-          const employees = await getClients(currentUser.id);
-        const files = await getFiles();
+    const fetchAnalyticsData = async () => {
+      if (!currentUser) return;
+      try {
+        setIsLoading(true);
+        const rangeToMonths = { '7d': 1, '30d': 1, '90d': 3, '1y': 12 } as const;
+        const months = rangeToMonths[timeRange] || 6;
 
-        // Calculate analytics from real data
-        const totalEmployees = employees.length;
-        const totalFiles = files.length;
-        
-        // Mock data for demonstration (in real app, this would come from Firestore)
-        const mockData: AnalyticsData = {
-          totalRevenue: 45600,
-          totalEmployees,
-          totalProjects: 12,
-          totalInvoices: 24,
-          monthlyRevenue: [
-            { month: 'Jan', revenue: 8500 },
-            { month: 'Feb', revenue: 9200 },
-            { month: 'Mar', revenue: 7800 },
-            { month: 'Apr', revenue: 10500 },
-            { month: 'May', revenue: 9600 },
-            { month: 'Jun', revenue: 12000 },
-          ],
-          employeeGrowth: [
-            { month: 'Jan', employees: 8 },
-            { month: 'Feb', employees: 12 },
-            { month: 'Mar', employees: 15 },
-            { month: 'Apr', employees: 18 },
-            { month: 'May', employees: 22 },
-            { month: 'Jun', employees: totalEmployees },
-          ],
-          projectStatus: [
-            { status: 'Active', count: 8 },
-            { status: 'Completed', count: 3 },
-            { status: 'On Hold', count: 1 },
-          ],
-          fileUploads: [
-            { month: 'Jan', uploads: 45 },
-            { month: 'Feb', uploads: 52 },
-            { month: 'Mar', uploads: 38 },
-            { month: 'Apr', uploads: 67 },
-            { month: 'May', uploads: 73 },
-            { month: 'Jun', uploads: totalFiles },
-          ],
-        };
-        
-        setAnalyticsData(mockData);
+        const [revenue, projects, tasks, files] = await Promise.all([
+          getMonthlyRevenue(months),
+          getProjectStatusCounts(months),
+          getMonthlyTaskCompletion(months),
+          getFileUploadStats(months),
+        ]);
+
+        setAnalyticsData({
+          totalRevenue: revenue.totalRevenue,
+          totalTasks: tasks.totalTasks,
+          totalProjects: projects.totalProjects,
+          totalInvoices: revenue.totalInvoices,
+          monthlyRevenue: revenue.monthlyRevenue,
+          taskGrowth: tasks.taskGrowth,
+          projectStatus: projects.projectStatus,
+          fileUploads: files.fileUploads,
+        });
       } catch (error) {
         console.error('Error fetching analytics data:', error);
       } finally {
@@ -95,7 +67,7 @@ interface AnalyticsData {
     };
 
     fetchAnalyticsData();
-    }, [timeRange, currentUser]);
+  }, [timeRange, currentUser]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -111,15 +83,19 @@ interface AnalyticsData {
     return ((current - previous) / previous) * 100;
   };
 
-  const getEmployeeGrowth = () => {
-    if (analyticsData.employeeGrowth.length < 2) return 0;
-    const current = analyticsData.employeeGrowth[analyticsData.employeeGrowth.length - 1].employees;
-    const previous = analyticsData.employeeGrowth[analyticsData.employeeGrowth.length - 2].employees;
+  const getTaskGrowth = () => {
+    if (analyticsData.taskGrowth.length < 2) return 0;
+    const current = analyticsData.taskGrowth[analyticsData.taskGrowth.length - 1].tasks;
+    const previous = analyticsData.taskGrowth[analyticsData.taskGrowth.length - 2].tasks;
     return ((current - previous) / previous) * 100;
   };
 
-  const renderBarChart = (data: { month: string; revenue?: number; employees?: number; uploads?: number }[], title: string, color: string) => {
-    const maxValue = Math.max(...data.map(d => d.revenue || d.employees || d.uploads || 0));
+  const renderBarChart = (
+    data: { month: string; revenue?: number; employees?: number; uploads?: number; tasks?: number }[],
+    title: string,
+    color: string
+  ) => {
+    const maxValue = Math.max(...data.map(d => d.revenue || d.employees || d.uploads || d.tasks || 0));
     
     return (
       <div className="space-y-4">
@@ -130,7 +106,7 @@ interface AnalyticsData {
               <div 
                 className="w-full rounded-t"
                 style={{
-                  height: `${((item.revenue || item.employees || item.uploads || 0) / maxValue) * 100}%`,
+                  height: `${((item.revenue || item.employees || item.uploads || item.tasks || 0) / maxValue) * 100}%`,
                   backgroundColor: color,
                 }}
               />
@@ -264,10 +240,10 @@ interface AnalyticsData {
               <Users className="h-6 w-6 text-blue-600" />
             </div>
             <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Employees</p>
-                <p className="text-2xl font-bold text-gray-900">{analyticsData.totalEmployees}</p>
-                <p className={`text-sm ${getEmployeeGrowth() >= 0 ? 'text-green-600' : 'text-red-600'}`}> 
-                  {getEmployeeGrowth() >= 0 ? '+' : ''}{getEmployeeGrowth().toFixed(1)}% from last month
+                <p className="text-sm font-medium text-gray-600">Total Tasks</p>
+                <p className="text-2xl font-bold text-gray-900">{analyticsData.totalTasks}</p>
+                <p className={`text-sm ${getTaskGrowth() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {getTaskGrowth() >= 0 ? '+' : ''}{getTaskGrowth().toFixed(1)}% from last month
               </p>
             </div>
           </div>
@@ -307,7 +283,7 @@ interface AnalyticsData {
         </div>
 
         <div className="card">
-          {renderBarChart(analyticsData.employeeGrowth, 'Employee Growth', '#3B82F6')}
+          {renderBarChart(analyticsData.taskGrowth, 'Task Growth', '#3B82F6')}
         </div>
 
         <div className="card">
