@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { 
   Plus, 
   Search, 
@@ -43,6 +44,7 @@ function Projects() {
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -312,7 +314,11 @@ function Projects() {
       {/* Projects Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredProjects.map((project) => (
-          <div key={project.id} className="card hover:shadow-md transition-shadow">
+          <div
+            key={project.id}
+            className="card hover:shadow-md transition-shadow cursor-pointer"
+            onClick={() => navigate(`/projects/${project.id}`)}
+          >
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="text-lg font-medium text-gray-900">{project.name}</h3>
@@ -359,9 +365,9 @@ function Projects() {
             </div>
             
             <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-              <div className="flex space-x-2">
+              <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
                 <button
-                  onClick={() => window.open(`/project/${project.id}`, '_blank')}
+                  onClick={() => navigate(`/projects/${project.id}`)}
                   className="text-blue-600 hover:text-blue-900"
                 >
                   <Eye className="h-4 w-4" />

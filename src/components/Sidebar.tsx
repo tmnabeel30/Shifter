@@ -4,11 +4,12 @@ import {
   Users, 
   FileText, 
   FolderOpen, 
-  Upload, 
+  Upload,
   BarChart3,
   Settings as SettingsIcon,
   LogOut,
-  Briefcase
+  Briefcase,
+  CheckSquare
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -43,6 +44,7 @@ function Sidebar() {
         { name: 'Dashboard', href: '/dashboard', icon: Home },
         { name: 'Invoices', href: '/invoices', icon: FileText },
         { name: 'Projects', href: '/projects', icon: FolderOpen },
+        { name: 'My Tasks', href: '/tasks', icon: CheckSquare },
         { name: 'Files', href: '/files', icon: Upload },
         { name: 'Analytics', href: '/analytics', icon: BarChart3 },
         { name: 'Settings', href: '/settings', icon: SettingsIcon },
