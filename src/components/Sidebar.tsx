@@ -39,7 +39,7 @@ function Sidebar() {
         { name: 'Settings', href: '/settings', icon: SettingsIcon },
       ];
     } else {
-      // Default navigation for employees/freelancers
+      // Default navigation for employers
       return [
         { name: 'Dashboard', href: '/dashboard', icon: Home },
         { name: 'Invoices', href: '/invoices', icon: FileText },

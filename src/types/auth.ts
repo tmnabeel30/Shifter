@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'freelancer' | 'client' | 'team_member';
+export type UserRole = 'admin' | 'employer' | 'client' | 'team_member';
 
 export interface User {
   id: string;
@@ -39,7 +39,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     { resource: 'settings', actions: ['create', 'read', 'update', 'delete'] },
     { resource: 'analytics', actions: ['read'] },
   ],
-  freelancer: [
+  employer: [
     { resource: 'clients', actions: ['create', 'read', 'update'] },
     { resource: 'invoices', actions: ['create', 'read', 'update'] },
     { resource: 'projects', actions: ['create', 'read', 'update'] },

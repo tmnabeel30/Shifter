@@ -19,14 +19,14 @@ service cloud.firestore {
     }
 
     match /clients/{clientId} {
-      allow create: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('freelancer')) && request.resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('employer')) && request.resource.data.ownerId == request.auth.uid;
       allow read: if isSignedIn() && onboardingComplete() && resource.data.ownerId == request.auth.uid;
-      allow update, delete: if isSignedIn() && onboardingComplete() && resource.data.ownerId == request.auth.uid && (hasRole('admin') || hasRole('freelancer'));
+      allow update, delete: if isSignedIn() && onboardingComplete() && resource.data.ownerId == request.auth.uid && (hasRole('admin') || hasRole('employer'));
     }
 
     match /projects/{projectId} {
       allow read: if isSignedIn() && onboardingComplete() && (
-        hasRole('admin') || hasRole('freelancer') || resource.data.clientId == request.auth.uid
+        hasRole('admin') || hasRole('employer') || resource.data.clientId == request.auth.uid
       );
       allow create, update, delete: if isSignedIn() && onboardingComplete() && !hasRole('client');
     }
@@ -34,26 +34,32 @@ service cloud.firestore {
     match /invoices/{invoiceId} {
       allow read: if isSignedIn() && onboardingComplete() && (
         hasRole('admin') ||
-        hasRole('freelancer') ||
+        hasRole('employer') ||
         (hasRole('client') && resource.data.clientId == request.auth.uid)
       );
-      allow create, update, delete: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('freelancer'));
+      allow create, update, delete: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('employer'));
     }
 
     match /files/{fileId} {
       allow read: if isSignedIn() && onboardingComplete() && (
-        hasRole('admin') || hasRole('freelancer') || resource.data.clientId == request.auth.uid
+        hasRole('admin') || hasRole('employer') || resource.data.clientId == request.auth.uid
       );
-      allow write: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('freelancer') || hasRole('team_member'));
+      allow write: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('employer') || hasRole('team_member'));
     }
 
     match /projectRequests/{requestId} {
       allow create: if isSignedIn() && onboardingComplete() && hasRole('client');
       allow read: if isSignedIn() && onboardingComplete() &&
-        (hasRole('admin') || hasRole('freelancer') || resource.data.clientId == request.auth.uid);
-      allow update: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('freelancer'));
+        (hasRole('admin') || hasRole('employer') || resource.data.clientId == request.auth.uid);
+      allow update: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('employer'));
       allow delete: if isSignedIn() && onboardingComplete() &&
         (hasRole('admin') || resource.data.clientId == request.auth.uid);
+    }
+
+    match /tasks/{taskId} {
+      allow create: if isSignedIn() && onboardingComplete() && hasRole('employer');
+      allow read: if isSignedIn() && onboardingComplete() && (hasRole('employer') || resource.data.assigneeId == request.auth.uid);
+      allow update, delete: if isSignedIn() && onboardingComplete() && hasRole('employer');
     }
 
     match /{document=**} {
