@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   User as FirebaseUser,
@@ -12,11 +13,11 @@ import { User, UserRole } from '../types/auth';
 
 interface AuthContextType {
   currentUser: User | null;
-  login: (email: string, password: string) => Promise<User>;
-  signup: (email: string, password: string, name: string, role?: UserRole) => Promise<User>;
+  login: (_email: string, _password: string) => Promise<User>;
+  signup: (_email: string, _password: string, _name: string, _role?: UserRole) => Promise<User>;
   logout: () => Promise<void>;
   loading: boolean;
-  updateUserRole: (role: UserRole) => Promise<void>;
+  updateUserRole: (_role: UserRole) => Promise<void>;
   completeOnboarding: () => Promise<void>;
 }
 

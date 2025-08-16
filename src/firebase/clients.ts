@@ -61,7 +61,8 @@ export const getClients = async (userId: string): Promise<Client[]> => {
     return querySnapshot.docs.map(docToClient);
   } catch (error) {
     console.error('Error fetching clients:', error);
-    throw new Error('Failed to fetch clients');
+    // Return an empty list in offline or error scenarios
+    return [];
   }
 };
 

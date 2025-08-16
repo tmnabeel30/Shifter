@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Upload, Search, File, Folder, Download, Share2, Trash2, Eye } from 'lucide-react';
+import { Upload, Search, File as FileIcon, Folder, Download, Share2, Trash2, Eye } from 'lucide-react';
+import React from 'react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -37,37 +38,26 @@ function Files() {
   }, []);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+    const selected = event.target.files;
+    if (!selected || selected.length === 0) return;
 
     setUploading(true);
-    
+
     try {
-      const uploadPromises = Array.from(files).map(async (file) => {
+      const uploadPromises = Array.from(selected).map(async (file) => {
         const fileData: FileUploadData = {
           file,
           clientName: 'General', // In real app, this would come from a form
           projectName: 'General', // In real app, this would come from a form
           uploadedBy: currentUser?.name || 'Unknown User',
         };
-        
+
         return await uploadFile(fileData);
       });
 
       const newFiles = await Promise.all(uploadPromises);
-      setFiles([...newFiles, ...Array.from(files).map((file: File) => ({
-        id: Date.now().toString() + Math.random(),
-        name: file.name,
-        type: 'file' as const,
-        size: file.size,
-        uploadedBy: currentUser?.name || 'Unknown User',
-        uploadedAt: new Date().toISOString().split('T')[0],
-        clientName: 'General',
-        projectName: 'General',
-        url: URL.createObjectURL(file),
-        shared: false,
-      }))]);
-      toast.success(`${files.length} file(s) uploaded successfully!`);
+      setFiles([...newFiles, ...files]);
+      toast.success(`${selected.length} file(s) uploaded successfully!`);
     } catch (error) {
       console.error('Error uploading files:', error);
       toast.error('Failed to upload files');
@@ -121,24 +111,24 @@ function Files() {
     const extension = fileName.split('.').pop()?.toLowerCase();
     switch (extension) {
       case 'pdf':
-        return <File className="h-8 w-8 text-red-500" />;
+        return <FileIcon className="h-8 w-8 text-red-500" />;
       case 'ai':
       case 'psd':
       case 'fig':
-        return <File className="h-8 w-8 text-purple-500" />;
+        return <FileIcon className="h-8 w-8 text-purple-500" />;
       case 'jpg':
       case 'jpeg':
       case 'png':
       case 'gif':
-        return <File className="h-8 w-8 text-green-500" />;
+        return <FileIcon className="h-8 w-8 text-green-500" />;
       case 'doc':
       case 'docx':
-        return <File className="h-8 w-8 text-blue-500" />;
+        return <FileIcon className="h-8 w-8 text-blue-500" />;
       case 'xls':
       case 'xlsx':
-        return <File className="h-8 w-8 text-green-600" />;
+        return <FileIcon className="h-8 w-8 text-green-600" />;
       default:
-        return <File className="h-8 w-8 text-gray-500" />;
+        return <FileIcon className="h-8 w-8 text-gray-500" />;
     }
   };
 
@@ -153,7 +143,7 @@ function Files() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Files</h1>
-          <p className="text-gray-600">Manage and share files with your clients.</p>
+          <p className="text-gray-600">Manage and share files with your employees.</p>
         </div>
         <label className="btn-primary flex items-center cursor-pointer">
           <Upload className="h-5 w-5 mr-2" />
@@ -189,7 +179,7 @@ function Files() {
           </div>
         ) : filteredFiles.length === 0 ? (
           <div className="text-center py-8">
-            <File className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <FileIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No files found</p>
           </div>
         ) : (

@@ -4,7 +4,7 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
-import Clients from './pages/Clients';
+import Employees from './pages/Employees';
 import Invoices from './pages/Invoices';
 import Projects from './pages/Projects';
 import Files from './pages/Files';
@@ -73,7 +73,7 @@ function App() {
             >
             <Route index element={<Navigate to="/dashboard" />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="clients" element={<Clients />} />
+            <Route path="employees" element={<Employees />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="projects" element={<Projects />} />
             <Route path="files" element={<Files />} />

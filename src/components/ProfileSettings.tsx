@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { User, Mail, Phone, Building, Save, Camera } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -54,7 +54,7 @@ function ProfileSettings() {
     }
   };
 
-  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setAvatar(file);

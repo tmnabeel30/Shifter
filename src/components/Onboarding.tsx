@@ -9,7 +9,6 @@ import {
   ArrowRight, 
   ArrowLeft,
   CheckCircle,
-  Mail,
   Phone,
   Globe,
   Briefcase
@@ -38,11 +37,9 @@ function Onboarding() {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<OnboardingForm>();
 
-  const watchedRole = watch('role');
 
   const steps = [
     { id: 1, title: 'Welcome', description: 'Let\'s get you started' },

@@ -1,14 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Notification } from '../types/notifications';
+import { AppNotification } from '../types/notifications';
 import toast from 'react-hot-toast';
 
 interface NotificationContextType {
-  notifications: Notification[];
+  notifications: AppNotification[];
   unreadCount: number;
-  addNotification: (notification: Omit<Notification, 'id' | 'createdAt'>) => void;
-  markAsRead: (id: string) => void;
+  // eslint-disable-next-line no-unused-vars
+  addNotification: (_notification: Omit<AppNotification, 'id' | 'createdAt'>) => void;
+  // eslint-disable-next-line no-unused-vars
+  markAsRead: (_id: string) => void;
   markAllAsRead: () => void;
-  removeNotification: (id: string) => void;
+  // eslint-disable-next-line no-unused-vars
+  removeNotification: (_id: string) => void;
   clearAll: () => void;
 }
 
@@ -23,12 +26,12 @@ export const useNotifications = () => {
 };
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const addNotification = (notification: Omit<Notification, 'id' | 'createdAt'>) => {
-    const newNotification: Notification = {
+  const addNotification = (notification: Omit<AppNotification, 'id' | 'createdAt'>) => {
+    const newNotification: AppNotification = {
       ...notification,
       id: Date.now().toString(),
       createdAt: new Date(),

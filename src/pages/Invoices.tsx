@@ -39,7 +39,7 @@ function Invoices() {
     setShowPaymentModal(true);
   };
 
-  const handlePaymentComplete = (_payment: any) => {
+  const handlePaymentComplete = () => {
     if (selectedInvoice) {
       setInvoices(invoices.map(invoice => 
         invoice.id === selectedInvoice.id 

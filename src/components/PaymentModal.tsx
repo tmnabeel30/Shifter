@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { X, CreditCard, Lock, CheckCircle } from 'lucide-react';
 import { Payment } from '../types/payments';
 
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
+  // eslint-disable-next-line no-unused-vars
   onComplete: (payment: Payment) => void;
   amount: number;
   invoiceId: string;
@@ -19,7 +20,7 @@ function PaymentModal({ isOpen, onClose, onComplete, amount, invoiceId }: Paymen
     name: '',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setStep('processing');
 

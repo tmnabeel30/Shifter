@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { Search, Filter, X, Tag } from 'lucide-react';
 
 interface SearchFilters {
@@ -12,6 +12,7 @@ interface SearchFilters {
 }
 
 interface AdvancedSearchProps {
+  // eslint-disable-next-line no-unused-vars
   onSearch: (filters: SearchFilters) => void;
   onClear: () => void;
 }
@@ -28,7 +29,7 @@ function AdvancedSearch({ onSearch, onClear }: AdvancedSearchProps) {
     tags: [],
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     onSearch(filters);
   };

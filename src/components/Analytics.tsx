@@ -11,11 +11,11 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface AnalyticsData {
   totalRevenue: number;
-  totalClients: number;
+  totalEmployees: number;
   totalProjects: number;
   totalInvoices: number;
   monthlyRevenue: { month: string; revenue: number }[];
-  clientGrowth: { month: string; clients: number }[];
+  employeeGrowth: { month: string; employees: number }[];
   projectStatus: { status: string; count: number }[];
   fileUploads: { month: string; uploads: number }[];
 }
@@ -23,11 +23,11 @@ interface AnalyticsData {
   function Analytics() {
     const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
     totalRevenue: 0,
-    totalClients: 0,
+    totalEmployees: 0,
     totalProjects: 0,
     totalInvoices: 0,
     monthlyRevenue: [],
-    clientGrowth: [],
+    employeeGrowth: [],
     projectStatus: [],
     fileUploads: []
   });
@@ -42,17 +42,17 @@ interface AnalyticsData {
           setIsLoading(true);
         
         // Fetch real data from Firebase
-          const clients = await getClients(currentUser.id);
+          const employees = await getClients(currentUser.id);
         const files = await getFiles();
-        
+
         // Calculate analytics from real data
-        const totalClients = clients.length;
+        const totalEmployees = employees.length;
         const totalFiles = files.length;
         
         // Mock data for demonstration (in real app, this would come from Firestore)
         const mockData: AnalyticsData = {
           totalRevenue: 45600,
-          totalClients,
+          totalEmployees,
           totalProjects: 12,
           totalInvoices: 24,
           monthlyRevenue: [
@@ -63,13 +63,13 @@ interface AnalyticsData {
             { month: 'May', revenue: 9600 },
             { month: 'Jun', revenue: 12000 },
           ],
-          clientGrowth: [
-            { month: 'Jan', clients: 8 },
-            { month: 'Feb', clients: 12 },
-            { month: 'Mar', clients: 15 },
-            { month: 'Apr', clients: 18 },
-            { month: 'May', clients: 22 },
-            { month: 'Jun', clients: totalClients },
+          employeeGrowth: [
+            { month: 'Jan', employees: 8 },
+            { month: 'Feb', employees: 12 },
+            { month: 'Mar', employees: 15 },
+            { month: 'Apr', employees: 18 },
+            { month: 'May', employees: 22 },
+            { month: 'Jun', employees: totalEmployees },
           ],
           projectStatus: [
             { status: 'Active', count: 8 },
@@ -111,15 +111,15 @@ interface AnalyticsData {
     return ((current - previous) / previous) * 100;
   };
 
-  const getClientGrowth = () => {
-    if (analyticsData.clientGrowth.length < 2) return 0;
-    const current = analyticsData.clientGrowth[analyticsData.clientGrowth.length - 1].clients;
-    const previous = analyticsData.clientGrowth[analyticsData.clientGrowth.length - 2].clients;
+  const getEmployeeGrowth = () => {
+    if (analyticsData.employeeGrowth.length < 2) return 0;
+    const current = analyticsData.employeeGrowth[analyticsData.employeeGrowth.length - 1].employees;
+    const previous = analyticsData.employeeGrowth[analyticsData.employeeGrowth.length - 2].employees;
     return ((current - previous) / previous) * 100;
   };
 
-  const renderBarChart = (data: { month: string; revenue?: number; clients?: number; uploads?: number }[], title: string, color: string) => {
-    const maxValue = Math.max(...data.map(d => d.revenue || d.clients || d.uploads || 0));
+  const renderBarChart = (data: { month: string; revenue?: number; employees?: number; uploads?: number }[], title: string, color: string) => {
+    const maxValue = Math.max(...data.map(d => d.revenue || d.employees || d.uploads || 0));
     
     return (
       <div className="space-y-4">
@@ -130,7 +130,7 @@ interface AnalyticsData {
               <div 
                 className="w-full rounded-t"
                 style={{
-                  height: `${((item.revenue || item.clients || item.uploads || 0) / maxValue) * 100}%`,
+                  height: `${((item.revenue || item.employees || item.uploads || 0) / maxValue) * 100}%`,
                   backgroundColor: color,
                 }}
               />
@@ -264,10 +264,10 @@ interface AnalyticsData {
               <Users className="h-6 w-6 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Clients</p>
-              <p className="text-2xl font-bold text-gray-900">{analyticsData.totalClients}</p>
-              <p className={`text-sm ${getClientGrowth() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {getClientGrowth() >= 0 ? '+' : ''}{getClientGrowth().toFixed(1)}% from last month
+                <p className="text-sm font-medium text-gray-600">Total Employees</p>
+                <p className="text-2xl font-bold text-gray-900">{analyticsData.totalEmployees}</p>
+                <p className={`text-sm ${getEmployeeGrowth() >= 0 ? 'text-green-600' : 'text-red-600'}`}> 
+                  {getEmployeeGrowth() >= 0 ? '+' : ''}{getEmployeeGrowth().toFixed(1)}% from last month
               </p>
             </div>
           </div>
@@ -307,7 +307,7 @@ interface AnalyticsData {
         </div>
 
         <div className="card">
-          {renderBarChart(analyticsData.clientGrowth, 'Client Growth', '#3B82F6')}
+          {renderBarChart(analyticsData.employeeGrowth, 'Employee Growth', '#3B82F6')}
         </div>
 
         <div className="card">
@@ -325,7 +325,7 @@ interface AnalyticsData {
         <div className="space-y-4">
           <div className="flex items-center space-x-3">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="text-sm text-gray-600">New client "TechCorp Inc." added</span>
+            <span className="text-sm text-gray-600">New employee "TechCorp Inc." added</span>
             <span className="text-xs text-gray-400">2 hours ago</span>
           </div>
           <div className="flex items-center space-x-3">
