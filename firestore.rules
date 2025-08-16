@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function getUser() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function onboardingComplete() {
+      return getUser().onboardingCompleted == true;
+    }
+    function hasRole(role) {
+      return getUser().role == role;
+    }
+
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /clients/{clientId} {
+      allow create: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('freelancer')) && request.resource.data.ownerId == request.auth.uid;
+      allow read: if isSignedIn() && onboardingComplete() && resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && onboardingComplete() && resource.data.ownerId == request.auth.uid && (hasRole('admin') || hasRole('freelancer'));
+    }
+
+    match /projects/{projectId} {
+      allow read: if isSignedIn() && onboardingComplete();
+      allow create, update, delete: if isSignedIn() && onboardingComplete() && !hasRole('client');
+    }
+
+    match /invoices/{invoiceId} {
+      allow read: if isSignedIn() && onboardingComplete();
+      allow create, update, delete: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('freelancer'));
+    }
+
+    match /files/{fileId} {
+      allow read: if isSignedIn() && onboardingComplete();
+      allow write: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('freelancer') || hasRole('team_member'));
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

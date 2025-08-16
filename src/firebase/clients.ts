@@ -4,9 +4,10 @@ import {
   addDoc, 
   updateDoc, 
   deleteDoc, 
-  getDocs, 
-  query, 
+  getDocs,
+  query,
   orderBy,
+  where,
   serverTimestamp,
   DocumentData,
   QueryDocumentSnapshot
@@ -15,6 +16,7 @@ import { db } from './config';
 
 export interface Client {
   id: string;
+  ownerId: string;
   name: string;
   email: string;
   phone: string;
@@ -33,10 +35,11 @@ export interface ClientFormData {
 }
 
 // Convert Firestore document to Client object
-const docToClient = (doc: QueryDocumentSnapshot<DocumentData>): Client => {
-  const data = doc.data();
+const docToClient = (docSnap: QueryDocumentSnapshot<DocumentData>): Client => {
+  const data = docSnap.data();
   return {
-    id: doc.id,
+    id: docSnap.id,
+    ownerId: data.ownerId || '',
     name: data.name || '',
     email: data.email || '',
     phone: data.phone || '',
@@ -48,13 +51,13 @@ const docToClient = (doc: QueryDocumentSnapshot<DocumentData>): Client => {
   };
 };
 
-// Get all clients
-export const getClients = async (): Promise<Client[]> => {
+// Get all clients for a user
+export const getClients = async (userId: string): Promise<Client[]> => {
   try {
     const clientsRef = collection(db, 'clients');
-    const q = query(clientsRef, orderBy('createdAt', 'desc'));
+    const q = query(clientsRef, where('ownerId', '==', userId), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
-    
+
     return querySnapshot.docs.map(docToClient);
   } catch (error) {
     console.error('Error fetching clients:', error);
@@ -63,13 +66,14 @@ export const getClients = async (): Promise<Client[]> => {
 };
 
 // Add a new client
-export const addClient = async (clientData: ClientFormData): Promise<Client> => {
+export const addClient = async (clientData: ClientFormData, ownerId: string): Promise<Client> => {
   try {
     const clientsRef = collection(db, 'clients');
     const portalUrl = `https://shifter.com/portal/client${Date.now()}`;
-    
+
     const docRef = await addDoc(clientsRef, {
       ...clientData,
+      ownerId,
       portalUrl,
       status: 'active',
       createdAt: serverTimestamp(),
@@ -79,6 +83,7 @@ export const addClient = async (clientData: ClientFormData): Promise<Client> => 
     // Return the created client
     return {
       id: docRef.id,
+      ownerId,
       ...clientData,
       portalUrl,
       status: 'active',

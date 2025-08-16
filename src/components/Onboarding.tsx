@@ -32,7 +32,7 @@ interface OnboardingForm {
 function Onboarding() {
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState<'client' | 'admin' | null>(null);
-  const { currentUser, updateUserRole } = useAuth();
+  const { currentUser, updateUserRole, completeOnboarding } = useAuth();
   const navigate = useNavigate();
 
   const {
@@ -59,15 +59,12 @@ function Onboarding() {
 
   const onSubmit = async (data: OnboardingForm) => {
     try {
-      // Update user role and complete onboarding
-      updateUserRole(data.role);
-      
-      // In a real app, you'd save this to Firebase
-      // For now, we'll just simulate the completion
-      
+      await updateUserRole(data.role);
+      await completeOnboarding();
+
       toast.success('Onboarding completed successfully!');
       setCurrentStep(5);
-      
+
       // Redirect after a short delay
       setTimeout(() => {
         navigate('/dashboard');

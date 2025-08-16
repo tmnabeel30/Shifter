@@ -11,15 +11,16 @@ import {
   Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { 
-  getClients, 
-  addClient, 
-  updateClient, 
-  deleteClient, 
+import {
+  getClients,
+  addClient,
+  updateClient,
+  deleteClient,
   updateClientStatus,
-  type Client, 
-  type ClientFormData 
+  type Client,
+  type ClientFormData
 } from '../firebase/clients';
+import { useAuth } from '../contexts/AuthContext';
 
 function Clients() {
   const [clients, setClients] = useState<Client[]>([]);
@@ -28,6 +29,7 @@ function Clients() {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { currentUser } = useAuth();
 
   const {
     register,
@@ -38,9 +40,10 @@ function Clients() {
 
   useEffect(() => {
     const fetchClients = async () => {
+      if (!currentUser) return;
       try {
         setIsLoading(true);
-        const fetchedClients = await getClients();
+        const fetchedClients = await getClients(currentUser.id);
         setClients(fetchedClients);
       } catch (error) {
         console.error('Error fetching clients:', error);
@@ -51,7 +54,7 @@ function Clients() {
     };
 
     fetchClients();
-  }, []);
+  }, [currentUser]);
 
   const onSubmit = async (data: ClientFormData) => {
     try {
@@ -68,7 +71,8 @@ function Clients() {
         toast.success('Client updated successfully!');
       } else {
         // Add new client
-        const newClient = await addClient(data);
+        if (!currentUser) throw new Error('Not authenticated');
+        const newClient = await addClient(data, currentUser.id);
         setClients([newClient, ...clients]);
         toast.success('Client added successfully!');
       }

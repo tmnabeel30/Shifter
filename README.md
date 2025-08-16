@@ -202,6 +202,7 @@ The application is designed with a $5/month per client portal revenue model:
 
 - Firebase Authentication for secure user management
 - Role-based access control
+- Firestore security rules enforce onboarding completion and per-user data ownership
 - Secure file uploads and downloads
 - Client portal isolation
 - HTTPS enforcement
