@@ -13,8 +13,8 @@
     "test": "echo \"No tests\" && exit 0"
   },
   "dependencies": {
-    "@stripe/react-stripe-js": "^2.5.1",
-    "@stripe/stripe-js": "^2.1.1",
+    "@stripe/react-stripe-js": "^3.9.0",
+    "@stripe/stripe-js": "^7.8.0",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
     "firebase": "^10.14.1",
@@ -24,6 +24,7 @@
     "react-hook-form": "^7.48.2",
     "react-hot-toast": "^2.4.1",
     "react-router-dom": "^6.8.1",
+    "stripe": "^18.4.0",
     "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {
