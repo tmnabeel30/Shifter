@@ -21,7 +21,7 @@ function Sidebar() {
     if (currentUser?.role === 'client') {
       return [
         { name: 'Dashboard', href: '/dashboard', icon: Home },
-        { name: 'Project Requests', href: '/project-request', icon: Briefcase },
+        { name: 'Create Task', href: '/create-task', icon: CheckSquare },
         { name: 'Employees', href: '/employees', icon: Users },
         { name: 'My Projects', href: '/projects', icon: FolderOpen },
         { name: 'Files', href: '/files', icon: Upload },
