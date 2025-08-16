@@ -13,6 +13,8 @@
     "test": "echo \"No tests\" && exit 0"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^2.5.1",
+    "@stripe/stripe-js": "^2.1.1",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
     "firebase": "^10.14.1",

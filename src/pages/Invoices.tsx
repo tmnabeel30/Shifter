@@ -1,35 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Download, CreditCard } from 'lucide-react';
 import PaymentModal from '../components/PaymentModal';
-
-interface Invoice {
-  id: string;
-  clientName: string;
-  amount: number;
-  status: 'pending' | 'paid' | 'overdue';
-  dueDate: string;
-  invoiceNumber: string;
-}
+import { addInvoice, getInvoices, Invoice } from '../firebase/invoices';
+import { useAuth } from '../contexts/AuthContext';
 
 function Invoices() {
-  const [invoices, setInvoices] = useState<Invoice[]>([
-    {
-      id: '1',
-      clientName: 'TechCorp Inc.',
-      amount: 2500,
-      status: 'pending',
-      dueDate: '2024-02-15',
-      invoiceNumber: 'INV-001',
-    },
-    {
-      id: '2',
-      clientName: 'Design Studio',
-      amount: 1800,
-      status: 'paid',
-      dueDate: '2024-02-10',
-      invoiceNumber: 'INV-002',
-    },
-  ]);
+  const { currentUser } = useAuth();
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      if (!currentUser) return;
+      const data = await getInvoices(currentUser.id, currentUser.role);
+      setInvoices(data);
+    };
+    fetchInvoices();
+  }, [currentUser]);
+
+  const handleCreateInvoice = async () => {
+    if (!currentUser) return;
+    const clientName = prompt('Client Name');
+    const amountStr = prompt('Amount');
+    const dueDate = prompt('Due Date (YYYY-MM-DD)');
+    const invoiceNumber = prompt('Invoice Number');
+    if (!clientName || !amountStr || !dueDate || !invoiceNumber) return;
+    const newInvoice = await addInvoice({
+      clientId: currentUser.id,
+      clientName,
+      amount: parseFloat(amountStr),
+      dueDate,
+      invoiceNumber,
+    });
+    setInvoices([newInvoice, ...invoices]);
+  };
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -41,8 +44,8 @@ function Invoices() {
 
   const handlePaymentComplete = () => {
     if (selectedInvoice) {
-      setInvoices(invoices.map(invoice => 
-        invoice.id === selectedInvoice.id 
+      setInvoices(invoices.map(invoice =>
+        invoice.id === selectedInvoice.id
           ? { ...invoice, status: 'paid' as const }
           : invoice
       ));
@@ -58,7 +61,10 @@ function Invoices() {
           <h1 className="text-2xl font-bold text-gray-900">Invoices</h1>
           <p className="text-gray-600">Manage and track your invoices.</p>
         </div>
-        <button className="btn-primary flex items-center">
+        <button
+          className="btn-primary flex items-center"
+          onClick={handleCreateInvoice}
+        >
           <Plus className="h-5 w-5 mr-2" />
           Create Invoice
         </button>
@@ -143,7 +149,7 @@ function Invoices() {
         <PaymentModal
           isOpen={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
-          onComplete={handlePaymentComplete}
+          onComplete={() => handlePaymentComplete()}
           amount={selectedInvoice.amount}
           invoiceId={selectedInvoice.id}
         />
