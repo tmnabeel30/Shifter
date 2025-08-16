@@ -1,12 +1,31 @@
-import { useState } from 'react';
-import { 
-  CheckCircle,
-  DollarSign,
-  FileText
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CheckCircle, DollarSign, FileText, Download } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { getInvoices, Invoice } from '../firebase/invoices';
+import { getProjects, Project } from '../firebase/projects';
+import { getFilesByClient, FileItem } from '../firebase/files';
 
 function ClientPortal() {
+  const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [files, setFiles] = useState<FileItem[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!currentUser) return;
+      const [invoiceData, projectData, fileData] = await Promise.all([
+        getInvoices(currentUser.id, 'client'),
+        getProjects(currentUser.id),
+        getFilesByClient(currentUser.id),
+      ]);
+      setInvoices(invoiceData);
+      setProjects(projectData);
+      setFiles(fileData);
+    };
+    fetchData();
+  }, [currentUser]);
 
   const tabs = [
     { id: 'overview', name: 'Overview' },
@@ -14,6 +33,16 @@ function ClientPortal() {
     { id: 'projects', name: 'Projects' },
     { id: 'files', name: 'Files' },
   ];
+
+  const totalInvoiced = invoices.reduce((sum, inv) => sum + inv.amount, 0);
+  const activeProjects = projects.filter(p => p.status !== 'completed').length;
+  const sharedFiles = files.length;
+
+  const downloadInvoice = (invoice: Invoice) => {
+    if ((invoice as any).url) {
+      window.open((invoice as any).url, '_blank');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -50,7 +79,9 @@ function ClientPortal() {
                     <DollarSign className="h-8 w-8 text-blue-600" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-blue-600">Total Invoiced</p>
-                      <p className="text-2xl font-bold text-blue-900">$12,500</p>
+                      <p className="text-2xl font-bold text-blue-900">
+                        ${totalInvoiced.toFixed(2)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -60,7 +91,9 @@ function ClientPortal() {
                     <CheckCircle className="h-8 w-8 text-green-600" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-green-600">Active Projects</p>
-                      <p className="text-2xl font-bold text-green-900">3</p>
+                      <p className="text-2xl font-bold text-green-900">
+                        {activeProjects}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -70,7 +103,9 @@ function ClientPortal() {
                     <FileText className="h-8 w-8 text-purple-600" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-purple-600">Files Shared</p>
-                      <p className="text-2xl font-bold text-purple-900">24</p>
+                      <p className="text-2xl font-bold text-purple-900">
+                        {sharedFiles}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -78,23 +113,7 @@ function ClientPortal() {
 
               <div className="bg-gray-50 p-6 rounded-lg">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600">New invoice #INV-003 created</span>
-                    <span className="text-xs text-gray-400">2 hours ago</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600">Project "Website Redesign" updated</span>
-                    <span className="text-xs text-gray-400">1 day ago</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600">5 new files uploaded</span>
-                    <span className="text-xs text-gray-400">3 days ago</span>
-                  </div>
-                </div>
+                <p className="text-gray-600">No recent activity.</p>
               </div>
             </div>
           )}
@@ -102,21 +121,131 @@ function ClientPortal() {
           {activeTab === 'invoices' && (
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Invoices</h3>
-              <p className="text-gray-500">Invoice management coming soon...</p>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {invoices.map(invoice => (
+                      <tr key={invoice.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {invoice.invoiceNumber}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          ${invoice.amount.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {invoice.status}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {invoice.dueDate}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => downloadInvoice(invoice)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {!invoices.length && (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className="px-6 py-4 text-center text-sm text-gray-500"
+                        >
+                          No invoices found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
           {activeTab === 'projects' && (
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Projects</h3>
-              <p className="text-gray-500">Project management coming soon...</p>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Project</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {projects.map(project => (
+                      <tr key={project.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {project.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {project.status}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-primary-600 h-2 rounded-full"
+                              style={{ width: `${project.progress}%` }}
+                            ></div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {!projects.length && (
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className="px-6 py-4 text-center text-sm text-gray-500"
+                        >
+                          No projects found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
           {activeTab === 'files' && (
             <div className="space-y-4">
               <h3 className="text-lg font-medium text-gray-900">Files</h3>
-              <p className="text-gray-500">File management coming soon...</p>
+              <ul className="divide-y divide-gray-200">
+                {files.map(file => (
+                  <li
+                    key={file.id}
+                    className="py-2 flex justify-between items-center"
+                  >
+                    <span className="text-sm text-gray-700">{file.name}</span>
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      View
+                    </a>
+                  </li>
+                ))}
+                {!files.length && (
+                  <li className="py-2 text-center text-sm text-gray-500">
+                    No files found.
+                  </li>
+                )}
+              </ul>
             </div>
           )}
         </div>
