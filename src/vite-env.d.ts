@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars, no-redeclare */
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {

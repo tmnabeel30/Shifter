@@ -8,8 +8,7 @@ import {
   BarChart3,
   Settings as SettingsIcon,
   LogOut,
-  Briefcase,
-  Shield
+  Briefcase
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -30,7 +29,7 @@ function Sidebar() {
       return [
         { name: 'Dashboard', href: '/dashboard', icon: Home },
         { name: 'Project Requests', href: '/project-requests', icon: Briefcase },
-        { name: 'Clients', href: '/clients', icon: Users },
+        { name: 'Employees', href: '/employees', icon: Users },
         { name: 'Projects', href: '/projects', icon: FolderOpen },
         { name: 'Invoices', href: '/invoices', icon: FileText },
         { name: 'Files', href: '/files', icon: Upload },
@@ -41,7 +40,7 @@ function Sidebar() {
       // Default navigation for freelancers
       return [
         { name: 'Dashboard', href: '/dashboard', icon: Home },
-        { name: 'Clients', href: '/clients', icon: Users },
+        { name: 'Employees', href: '/employees', icon: Users },
         { name: 'Invoices', href: '/invoices', icon: FileText },
         { name: 'Projects', href: '/projects', icon: FolderOpen },
         { name: 'Files', href: '/files', icon: Upload },

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Bell, Mail, Smartphone, Save, ToggleLeft, ToggleRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-interface NotificationSettings {
+interface NotificationSettingsData {
   email: boolean;
   push: boolean;
   inApp: boolean;
@@ -20,7 +20,7 @@ interface NotificationSettings {
 }
 
 function NotificationSettings() {
-  const [settings, setSettings] = useState<NotificationSettings>({
+  const [settings, setSettings] = useState<NotificationSettingsData>({
     email: true,
     push: true,
     inApp: true,

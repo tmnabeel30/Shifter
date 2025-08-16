@@ -1,7 +1,7 @@
 export type NotificationType = 'info' | 'success' | 'warning' | 'error' | 'payment' | 'file' | 'project';
 export type NotificationPriority = 'low' | 'medium' | 'high' | 'urgent';
 
-export interface Notification {
+export interface AppNotification {
   id: string;
   type: NotificationType;
   priority: NotificationPriority;

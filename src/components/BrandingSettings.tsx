@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { Upload, Image, Save, Eye } from 'lucide-react';
+import { useState, ChangeEvent, CSSProperties } from 'react';
+import { Upload, Image as ImageIcon, Save, Eye } from 'lucide-react';
 
-interface BrandingSettings {
+interface BrandingSettingsData {
   companyName: string;
   logo: File | null;
   primaryColor: string;
@@ -11,7 +11,7 @@ interface BrandingSettings {
 }
 
 function BrandingSettings() {
-  const [settings, setSettings] = useState<BrandingSettings>({
+  const [settings, setSettings] = useState<BrandingSettingsData>({
     companyName: 'Shifter',
     logo: null,
     primaryColor: '#3B82F6',
@@ -22,14 +22,14 @@ function BrandingSettings() {
 
   const [showPreview, setShowPreview] = useState(false);
 
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setSettings({ ...settings, logo: file });
     }
   };
 
-  const handleFaviconUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFaviconUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setSettings({ ...settings, favicon: file });
@@ -154,7 +154,7 @@ function BrandingSettings() {
             </label>
             <div className="flex items-center space-x-4">
               <label className="btn-secondary flex items-center cursor-pointer">
-                <Image className="h-4 w-4 mr-2" />
+                <ImageIcon className="h-4 w-4 mr-2" />
                 Upload Favicon
                 <input
                   type="file"
@@ -218,7 +218,7 @@ function BrandingSettings() {
               style={{
                 '--primary-color': settings.primaryColor,
                 '--secondary-color': settings.secondaryColor,
-              } as React.CSSProperties}
+              } as CSSProperties}
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">

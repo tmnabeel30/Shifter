@@ -22,7 +22,7 @@ import {
 } from '../firebase/clients';
 import { useAuth } from '../contexts/AuthContext';
 
-function Clients() {
+function Employees() {
   const [clients, setClients] = useState<Client[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -46,8 +46,8 @@ function Clients() {
         const fetchedClients = await getClients(currentUser.id);
         setClients(fetchedClients);
       } catch (error) {
-        console.error('Error fetching clients:', error);
-        toast.error('Failed to load clients');
+        console.error('Error fetching employees:', error);
+        toast.error('Failed to load employees');
       } finally {
         setIsLoading(false);
       }
@@ -61,28 +61,28 @@ function Clients() {
       setLoading(true);
       
       if (editingClient) {
-        // Update existing client
+        // Update existing employee
         await updateClient(editingClient.id, data);
-        setClients(clients.map(client => 
-          client.id === editingClient.id 
+        setClients(clients.map(client =>
+          client.id === editingClient.id
             ? { ...client, ...data }
             : client
         ));
-        toast.success('Client updated successfully!');
+        toast.success('Employee updated successfully!');
       } else {
-        // Add new client
+        // Add new employee
         if (!currentUser) throw new Error('Not authenticated');
         const newClient = await addClient(data, currentUser.id);
         setClients([newClient, ...clients]);
-        toast.success('Client added successfully!');
+        toast.success('Employee added successfully!');
       }
       
       setShowForm(false);
       setEditingClient(null);
       reset();
     } catch (error) {
-      console.error('Error saving client:', error);
-      toast.error('Failed to save client');
+      console.error('Error saving employee:', error);
+      toast.error('Failed to save employee');
     } finally {
       setLoading(false);
     }
@@ -98,10 +98,10 @@ function Clients() {
     try {
       await deleteClient(clientId);
       setClients(clients.filter(client => client.id !== clientId));
-      toast.success('Client deleted successfully!');
+      toast.success('Employee deleted successfully!');
     } catch (error) {
-      console.error('Error deleting client:', error);
-      toast.error('Failed to delete client');
+      console.error('Error deleting employee:', error);
+      toast.error('Failed to delete employee');
     }
   };
 
@@ -120,15 +120,15 @@ function Clients() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
-          <p className="text-gray-600">Manage your clients and their portal access.</p>
+          <h1 className="text-2xl font-bold text-gray-900">Employees</h1>
+          <p className="text-gray-600">Manage your employees and their portal access.</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
           className="btn-primary flex items-center"
         >
           <Plus className="h-5 w-5 mr-2" />
-          Add Client
+          Add Employee
         </button>
       </div>
 
@@ -137,7 +137,7 @@ function Clients() {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
         <input
           type="text"
-          placeholder="Search clients..."
+          placeholder="Search employees..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="input-field pl-10"
@@ -148,7 +148,7 @@ function Clients() {
       {showForm && (
         <div className="card">
           <h2 className="text-lg font-medium text-gray-900 mb-4">
-            {editingClient ? 'Edit Client' : 'Add New Client'}
+            {editingClient ? 'Edit Employee' : 'Add New Employee'}
           </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -157,7 +157,7 @@ function Clients() {
                 <input
                   {...register('name', { required: 'Name is required' })}
                   className="input-field"
-                  placeholder="Client name"
+                  placeholder="Employee name"
                 />
                 {errors.name && (
                   <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
@@ -175,7 +175,7 @@ function Clients() {
                   })}
                   type="email"
                   className="input-field"
-                  placeholder="client@example.com"
+                  placeholder="employee@example.com"
                 />
                 {errors.email && (
                   <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -215,19 +215,19 @@ function Clients() {
                 className="btn-primary"
                 disabled={loading}
               >
-                {loading ? 'Saving...' : (editingClient ? 'Update Client' : 'Add Client')}
+                {loading ? 'Saving...' : (editingClient ? 'Update Employee' : 'Add Employee')}
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Clients List */}
+      {/* Employees List */}
       <div className="card">
         {isLoading ? (
           <div className="flex justify-center items-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-            <span className="ml-2 text-gray-600">Loading clients...</span>
+            <span className="ml-2 text-gray-600">Loading employees...</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -235,7 +235,7 @@ function Clients() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Client
+                    Employee
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Contact
@@ -296,7 +296,7 @@ function Clients() {
                             setClients(clients.map(c => 
                               c.id === client.id ? { ...c, status: newStatus } : c
                             ));
-                            toast.success(`Client ${newStatus}`);
+                            toast.success(`Employee ${newStatus}`);
                           } catch (error) {
                             toast.error('Failed to update status');
                           }
@@ -340,5 +340,5 @@ function Clients() {
   );
 }
 
-export default Clients;
+export default Employees;
 

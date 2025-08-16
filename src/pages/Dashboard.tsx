@@ -9,14 +9,13 @@ import {
   CheckCircle,
   AlertCircle,
   Briefcase,
-  Shield,
   Plus
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
 interface DashboardStats {
-  totalClients: number;
+  totalEmployees: number;
   totalInvoices: number;
   totalRevenue: number;
   pendingInvoices: number;
@@ -24,7 +23,7 @@ interface DashboardStats {
 
 interface RecentActivity {
   id: string;
-  type: 'invoice' | 'project' | 'client';
+  type: 'invoice' | 'project' | 'employee';
   title: string;
   description: string;
   date: string;
@@ -34,7 +33,7 @@ interface RecentActivity {
 function Dashboard() {
   const { currentUser } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
-    totalClients: 0,
+    totalEmployees: 0,
     totalInvoices: 0,
     totalRevenue: 0,
     pendingInvoices: 0,
@@ -45,7 +44,7 @@ function Dashboard() {
   useEffect(() => {
     // Mock data - in real app, fetch from Firebase
     setStats({
-      totalClients: 12,
+      totalEmployees: 12,
       totalInvoices: 45,
       totalRevenue: 28450,
       pendingInvoices: 8,
@@ -70,8 +69,8 @@ function Dashboard() {
       },
       {
         id: '3',
-        type: 'client',
-        title: 'New Client Added',
+        type: 'employee',
+        title: 'New Employee Added',
         description: 'TechCorp Inc.',
         date: '2024-01-13',
         status: 'pending',
@@ -106,7 +105,7 @@ function Dashboard() {
         return <FileText className="h-5 w-5 text-blue-500" />;
       case 'project':
         return <TrendingUp className="h-5 w-5 text-green-500" />;
-      case 'client':
+      case 'employee':
         return <Users className="h-5 w-5 text-purple-500" />;
       default:
         return <Calendar className="h-5 w-5 text-gray-500" />;
@@ -146,7 +145,7 @@ function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-purple-900">Admin Dashboard</h3>
-              <p className="text-purple-700 mt-1">Manage all projects, clients, and platform settings.</p>
+              <p className="text-purple-700 mt-1">Manage all projects, employees, and platform settings.</p>
             </div>
             <div className="flex space-x-3">
               <Link
@@ -164,11 +163,11 @@ function Dashboard() {
                 Project Requests
               </Link>
               <Link
-                to="/clients"
+                to="/employees"
                 className="btn-secondary border-purple-300 text-purple-700 hover:bg-purple-50 flex items-center"
               >
                 <Users className="h-4 w-4 mr-2" />
-                Manage Clients
+                Manage Employees
               </Link>
             </div>
           </div>
@@ -183,8 +182,8 @@ function Dashboard() {
               <Users className="h-8 w-8 text-blue-500" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Clients</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalClients}</p>
+              <p className="text-sm font-medium text-gray-600">Total Employees</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalEmployees}</p>
             </div>
           </div>
         </div>

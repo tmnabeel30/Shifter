@@ -4,7 +4,6 @@ import {
   CheckCircle, 
   XCircle, 
   Clock, 
-  User, 
   Calendar,
   DollarSign,
   Briefcase,

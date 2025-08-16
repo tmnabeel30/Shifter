@@ -19,7 +19,7 @@ interface PasswordForm {
   confirmPassword: string;
 }
 
-interface SecuritySettings {
+interface SecuritySettingsState {
   twoFactorAuth: boolean;
   sessionTimeout: number;
   loginNotifications: boolean;
@@ -33,7 +33,7 @@ function SecuritySettings() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [securitySettings, setSecuritySettings] = useState<SecuritySettings>({
+  const [securitySettings, setSecuritySettings] = useState<SecuritySettingsState>({
     twoFactorAuth: false,
     sessionTimeout: 30,
     loginNotifications: true,
@@ -71,7 +71,7 @@ function SecuritySettings() {
     }
   };
 
-  const handleSecuritySettingChange = (key: keyof SecuritySettings, value: boolean | number) => {
+  const handleSecuritySettingChange = (key: keyof SecuritySettingsState, value: boolean | number) => {
     setSecuritySettings(prev => ({
       ...prev,
       [key]: value,
