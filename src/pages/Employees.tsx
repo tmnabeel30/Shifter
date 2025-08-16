@@ -291,20 +291,29 @@ function Employees() {
                       <button
                         onClick={async () => {
                           try {
-                            const newStatus = client.status === 'active' ? 'inactive' : 'active';
-                            await updateClientStatus(client.id, newStatus);
-                            setClients(clients.map(c => 
-                              c.id === client.id ? { ...c, status: newStatus } : c
+                            const newStatus =
+                              client.status === 'active'
+                                ? 'inactive'
+                                : 'active';
+                            const finalStatus =
+                              client.status === 'request-sent'
+                                ? 'active'
+                                : newStatus;
+                            await updateClientStatus(client.id, finalStatus);
+                            setClients(clients.map(c =>
+                              c.id === client.id ? { ...c, status: finalStatus } : c
                             ));
-                            toast.success(`Employee ${newStatus}`);
+                            toast.success(`Employee ${finalStatus}`);
                           } catch (error) {
                             toast.error('Failed to update status');
                           }
                         }}
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full cursor-pointer transition-colors ${
-                          client.status === 'active' 
-                            ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                          client.status === 'active'
+                            ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                            : client.status === 'inactive'
+                            ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                            : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                         }`}>
                         {client.status}
                       </button>

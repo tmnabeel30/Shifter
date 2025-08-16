@@ -13,7 +13,7 @@ import Analytics from './components/Analytics';
 import ClientPortal from './pages/ClientPortal';
 import Layout from './components/Layout';
 import Onboarding from './components/Onboarding';
-import ProjectRequest from './components/ProjectRequest';
+import CreateTask from './components/CreateTask';
 import ProjectRequestManagement from './components/ProjectRequestManagement';
 import ProjectDashboard from './pages/ProjectDashboard';
 import Tasks from './pages/Tasks';
@@ -83,7 +83,7 @@ function App() {
             <Route path="files" element={<Files />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="project-request" element={<ProjectRequest />} />
+            <Route path="create-task" element={<CreateTask />} />
             <Route path="project-requests" element={<ProjectRequestManagement />} />
           </Route>
         </Routes>

@@ -22,7 +22,7 @@ export interface Client {
   phone: string;
   company: string;
   portalUrl: string;
-  status: 'active' | 'inactive';
+  status: 'request-sent' | 'active' | 'inactive';
   createdAt: string;
   updatedAt?: string;
 }
@@ -45,7 +45,7 @@ const docToClient = (docSnap: QueryDocumentSnapshot<DocumentData>): Client => {
     phone: data.phone || '',
     company: data.company || '',
     portalUrl: data.portalUrl || '',
-    status: data.status || 'active',
+    status: data.status || 'request-sent',
     createdAt: data.createdAt?.toDate?.()?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0],
     updatedAt: data.updatedAt?.toDate?.()?.toISOString()?.split('T')[0],
   };
@@ -76,7 +76,7 @@ export const addClient = async (clientData: ClientFormData, ownerId: string): Pr
       ...clientData,
       ownerId,
       portalUrl,
-      status: 'active',
+      status: 'request-sent',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     });
@@ -87,7 +87,7 @@ export const addClient = async (clientData: ClientFormData, ownerId: string): Pr
       ownerId,
       ...clientData,
       portalUrl,
-      status: 'active',
+      status: 'request-sent',
       createdAt: new Date().toISOString().split('T')[0],
     };
   } catch (error) {
@@ -122,7 +122,10 @@ export const deleteClient = async (clientId: string): Promise<void> => {
 };
 
 // Update client status
-export const updateClientStatus = async (clientId: string, status: 'active' | 'inactive'): Promise<void> => {
+export const updateClientStatus = async (
+  clientId: string,
+  status: 'request-sent' | 'active' | 'inactive'
+): Promise<void> => {
   try {
     const clientRef = doc(db, 'clients', clientId);
     await updateDoc(clientRef, {
