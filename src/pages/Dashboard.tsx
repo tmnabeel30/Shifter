@@ -127,7 +127,7 @@ function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-blue-900">Ready to start a new project?</h3>
-              <p className="text-blue-700 mt-1">Submit a project request and we'll match you with the perfect freelancer.</p>
+              <p className="text-blue-700 mt-1">Submit a project request and your employer will review it.</p>
             </div>
             <Link
               to="/project-request"

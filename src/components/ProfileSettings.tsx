@@ -236,11 +236,11 @@ function ProfileSettings() {
             Role
           </label>
           <select
-            value={currentUser?.role || 'freelancer'}
+            value={currentUser?.role || 'employer'}
             onChange={(e) => updateUserRole(e.target.value as any)}
             className="input-field"
           >
-            <option value="freelancer">Freelancer</option>
+            <option value="employer">Employer</option>
             <option value="admin">Admin</option>
             <option value="team_member">Team Member</option>
           </select>

@@ -1,6 +1,6 @@
-# Shifter - Client Portal for Freelancers
+# Shifter - Employer-Employee Portal
 
-A modern, professional client portal application that helps freelancers manage their client relationships, invoices, projects, and file sharing in one beautiful interface.
+A modern, professional portal application that helps employers manage their employee relationships, invoices, projects, and file sharing in one interface.
 
 ## 🚀 Features
 
@@ -13,7 +13,7 @@ A modern, professional client portal application that helps freelancers manage t
 ### 👥 Role-Based Access Control
 - **Client Access**: Submit project requests, track progress, manage invoices
 - **Admin Access**: Manage all projects, clients, and platform settings
-- **Freelancer Access**: Manage clients, projects, and invoices (default)
+- **Employer Access**: Manage employees, projects, and invoices (default)
 
 ### 📋 Project Management
 - **Project Requests**: Clients can submit detailed project requests
@@ -31,7 +31,7 @@ A modern, professional client portal application that helps freelancers manage t
 - **Project Analytics**: Track project performance
 - **Financial Reports**: Revenue and payment analytics
 
-### For Freelancers
+### For Employers
 - **Dashboard**: Overview of clients, invoices, revenue, and recent activity
 - **Client Management**: Add, edit, and manage client information with unique portal URLs
 - **Invoice Management**: Create, track, and manage invoices with status tracking
@@ -148,7 +148,7 @@ VITE_FIREBASE_APP_ID=your-app-id
 4. **Analytics**: Access comprehensive business analytics
 5. **Settings**: Configure platform settings and permissions
 
-### For Freelancers
+### For Employers
 
 1. **Add Clients**: Go to Clients page and add your client information
 2. **Create Invoices**: Generate professional invoices for your clients
@@ -194,7 +194,7 @@ npm run build
 ## 💰 Revenue Model
 
 The application is designed with a $5/month per client portal revenue model:
-- Freelancers pay $5/month for each active client portal
+- Employers pay $5/month for each active employee portal
 - Clients get free access to their dedicated portal
 - Scalable pricing based on number of clients
 

@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  async function signup(email: string, password: string, name: string, role: UserRole = 'freelancer') {
+  async function signup(email: string, password: string, name: string, role: UserRole = 'employer') {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     const userRef = doc(db, 'users', result.user.uid);
     const customUser: User = {
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: result.user.uid,
         email: data.email || '',
         name: data.name || result.user.displayName || 'User',
-        role: data.role || 'freelancer',
+        role: data.role || 'employer',
         permissions: data.permissions || [],
         createdAt: data.createdAt?.toDate?.() || new Date(),
         onboardingCompleted: data.onboardingCompleted || false,
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: result.user.uid,
         email: result.user.email || '',
         name: result.user.displayName || 'User',
-        role: 'freelancer',
+        role: 'employer',
         permissions: [],
         createdAt: new Date(),
         onboardingCompleted: false,
@@ -141,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: firebaseUser.uid,
             email: data.email || '',
             name: data.name || firebaseUser.displayName || 'User',
-            role: data.role || 'freelancer',
+            role: data.role || 'employer',
             permissions: data.permissions || [],
             createdAt: data.createdAt?.toDate?.() || new Date(),
             onboardingCompleted: data.onboardingCompleted || false,
@@ -153,7 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: firebaseUser.uid,
             email: firebaseUser.email || '',
             name: firebaseUser.displayName || 'User',
-            role: 'freelancer',
+            role: 'employer',
             permissions: [],
             createdAt: new Date(),
             onboardingCompleted: false,

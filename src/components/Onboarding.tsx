@@ -121,7 +121,7 @@ function Onboarding() {
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Client Access</h3>
               <p className="text-sm text-gray-600 mt-1">
-                I want to hire freelancers and manage projects
+                I want to view and work on projects assigned to me
               </p>
             </div>
             <ul className="text-sm text-gray-600 space-y-2 text-left">
