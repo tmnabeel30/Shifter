@@ -34,7 +34,7 @@ function Signup() {
       console.log('Attempting to create account with:', data.email);
       await signup(data.email, data.password, data.name);
       toast.success('Account created successfully!');
-      navigate('/dashboard');
+      navigate('/onboarding');
     } catch (error: any) {
       console.error('Signup error:', error);
       console.error('Error code:', error.code);

@@ -25,13 +25,14 @@ function Login() {
   const onSubmit = async (data: LoginForm) => {
     try {
       setLoading(true);
-      await login(data.email, data.password);
+      const user = await login(data.email, data.password);
       toast.success('Successfully logged in!');
-      
-      // Check if user needs onboarding
-      // In a real app, you'd check the user's onboarding status from Firebase
-      // For now, we'll redirect to onboarding for new users
-      navigate('/onboarding');
+
+      if (user.onboardingCompleted) {
+        navigate('/dashboard');
+      } else {
+        navigate('/onboarding');
+      }
     } catch (error: any) {
       toast.error(error.message || 'Failed to log in');
     } finally {

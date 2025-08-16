@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { getClients } from '../firebase/clients';
 import { getFiles } from '../firebase/files';
+import { useAuth } from '../contexts/AuthContext';
 
 interface AnalyticsData {
   totalRevenue: number;
@@ -19,8 +20,8 @@ interface AnalyticsData {
   fileUploads: { month: string; uploads: number }[];
 }
 
-function Analytics() {
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
+  function Analytics() {
+    const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
     totalRevenue: 0,
     totalClients: 0,
     totalProjects: 0,
@@ -30,16 +31,18 @@ function Analytics() {
     projectStatus: [],
     fileUploads: []
   });
-  const [isLoading, setIsLoading] = useState(true);
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
+    const [isLoading, setIsLoading] = useState(true);
+    const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
+    const { currentUser } = useAuth();
 
   useEffect(() => {
-    const fetchAnalyticsData = async () => {
-      try {
-        setIsLoading(true);
+      const fetchAnalyticsData = async () => {
+        if (!currentUser) return;
+        try {
+          setIsLoading(true);
         
         // Fetch real data from Firebase
-        const clients = await getClients();
+          const clients = await getClients(currentUser.id);
         const files = await getFiles();
         
         // Calculate analytics from real data
@@ -92,7 +95,7 @@ function Analytics() {
     };
 
     fetchAnalyticsData();
-  }, [timeRange]);
+    }, [timeRange, currentUser]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

@@ -24,17 +24,53 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         <Routes>
           {/* Public routes */}
-          <Route path="/login" element={!currentUser ? <Login /> : <Navigate to="/dashboard" />} />
-          <Route path="/signup" element={!currentUser ? <Signup /> : <Navigate to="/dashboard" />} />
+            <Route
+              path="/login"
+              element={
+                !currentUser
+                  ? <Login />
+                  : currentUser.onboardingCompleted
+                    ? <Navigate to="/dashboard" />
+                    : <Navigate to="/onboarding" />
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                !currentUser
+                  ? <Signup />
+                  : currentUser.onboardingCompleted
+                    ? <Navigate to="/dashboard" />
+                    : <Navigate to="/onboarding" />
+              }
+            />
           
           {/* Onboarding route */}
-          <Route path="/onboarding" element={currentUser ? <Onboarding /> : <Navigate to="/login" />} />
+            <Route
+              path="/onboarding"
+              element={
+                currentUser
+                  ? currentUser.onboardingCompleted
+                    ? <Navigate to="/dashboard" />
+                    : <Onboarding />
+                  : <Navigate to="/login" />
+              }
+            />
           
           {/* Client portal route */}
           <Route path="/portal/:clientId" element={<ClientPortal />} />
           
           {/* Protected routes */}
-          <Route path="/" element={currentUser ? <Layout /> : <Navigate to="/login" />}>
+            <Route
+              path="/"
+              element={
+                currentUser
+                  ? currentUser.onboardingCompleted
+                    ? <Layout />
+                    : <Navigate to="/onboarding" />
+                  : <Navigate to="/login" />
+              }
+            >
             <Route index element={<Navigate to="/dashboard" />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="clients" element={<Clients />} />
