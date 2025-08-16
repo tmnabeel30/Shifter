@@ -57,7 +57,7 @@ function NotificationSettings() {
     }
   };
 
-  const toggleSetting = (key: keyof NotificationSettings['types']) => {
+  const toggleSetting = (key: keyof NotificationSettingsData['types']) => {
     setSettings(prev => ({
       ...prev,
       types: {
@@ -190,7 +190,7 @@ function NotificationSettings() {
                 </p>
               </div>
               <button
-                onClick={() => toggleSetting(key as keyof NotificationSettings['types'])}
+                onClick={() => toggleSetting(key as keyof NotificationSettingsData['types'])}
                 className="flex items-center"
               >
                 {value ? (

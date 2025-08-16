@@ -7,9 +7,20 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+    alias: [
+      {
+        find: /^@\//,
+        replacement: `${path.resolve(__dirname, './src')}/`,
+      },
+      {
+        find: '@stripe/stripe-js',
+        replacement: path.resolve(__dirname, './src/stubs/stripe-js.ts'),
+      },
+      {
+        find: '@stripe/react-stripe-js',
+        replacement: path.resolve(__dirname, './src/stubs/react-stripe-js.ts'),
+      },
+    ],
   },
   server: {
     port: 3000,
