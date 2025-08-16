@@ -25,7 +25,9 @@ service cloud.firestore {
     }
 
     match /projects/{projectId} {
-      allow read: if isSignedIn() && onboardingComplete();
+      allow read: if isSignedIn() && onboardingComplete() && (
+        hasRole('admin') || hasRole('freelancer') || resource.data.clientId == request.auth.uid
+      );
       allow create, update, delete: if isSignedIn() && onboardingComplete() && !hasRole('client');
     }
 
@@ -39,7 +41,9 @@ service cloud.firestore {
     }
 
     match /files/{fileId} {
-      allow read: if isSignedIn() && onboardingComplete();
+      allow read: if isSignedIn() && onboardingComplete() && (
+        hasRole('admin') || hasRole('freelancer') || resource.data.clientId == request.auth.uid
+      );
       allow write: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('freelancer') || hasRole('team_member'));
     }
 

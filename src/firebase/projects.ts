@@ -9,12 +9,14 @@ import {
   orderBy,
   serverTimestamp,
   DocumentData,
-  QueryDocumentSnapshot
+  QueryDocumentSnapshot,
+  where
 } from 'firebase/firestore';
 import { db } from './config';
 
 export interface Project {
   id: string;
+  clientId?: string;
   name: string;
   clientName: string;
   description: string;
@@ -29,6 +31,7 @@ export interface Project {
 }
 
 export interface ProjectInput {
+  clientId?: string;
   name: string;
   clientName: string;
   description: string;
@@ -46,6 +49,7 @@ export const docToProject = (
   const data = docSnap.data();
   return {
     id: docSnap.id,
+    clientId: data.clientId || '',
     name: data.name || '',
     clientName: data.clientName || '',
     description: data.description || '',
@@ -62,10 +66,16 @@ export const docToProject = (
   };
 };
 
-export const getProjects = async (): Promise<Project[]> => {
+export const getProjects = async (clientId?: string): Promise<Project[]> => {
   try {
     const projectsRef = collection(db, 'projects');
-    const q = query(projectsRef, orderBy('createdAt', 'desc'));
+    const q = clientId
+      ? query(
+          projectsRef,
+          where('clientId', '==', clientId),
+          orderBy('createdAt', 'desc')
+        )
+      : query(projectsRef, orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(docToProject);
   } catch (error) {
@@ -79,6 +89,7 @@ export const addProject = async (project: ProjectInput): Promise<Project> => {
     const projectsRef = collection(db, 'projects');
     const docRef = await addDoc(projectsRef, {
       ...project,
+      clientId: project.clientId || '',
       status: project.status || 'planning',
       progress: project.progress || 0,
       createdAt: serverTimestamp(),
@@ -88,6 +99,7 @@ export const addProject = async (project: ProjectInput): Promise<Project> => {
     return {
       id: docRef.id,
       ...project,
+      clientId: project.clientId || '',
       status: project.status || 'planning',
       progress: project.progress || 0,
       createdAt: new Date().toISOString().split('T')[0],

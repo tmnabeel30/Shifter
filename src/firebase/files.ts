@@ -4,18 +4,19 @@ import {
   getDownloadURL, 
   deleteObject
 } from 'firebase/storage';
-import { 
-  collection, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  getDocs, 
-  query, 
+import {
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  getDocs,
+  query,
   orderBy,
   serverTimestamp,
   doc,
   DocumentData,
-  QueryDocumentSnapshot
+  QueryDocumentSnapshot,
+  where
 } from 'firebase/firestore';
 import { storage, db } from './config';
 
@@ -26,6 +27,7 @@ export interface FileItem {
   size: number;
   uploadedBy: string;
   uploadedAt: string;
+  clientId?: string;
   clientName: string;
   projectName: string;
   url: string;
@@ -36,6 +38,7 @@ export interface FileItem {
 
 export interface FileUploadData {
   file: File;
+  clientId?: string;
   clientName: string;
   projectName: string;
   uploadedBy: string;
@@ -51,6 +54,7 @@ const docToFileItem = (doc: QueryDocumentSnapshot<DocumentData>): FileItem => {
     size: data.size || 0,
     uploadedBy: data.uploadedBy || '',
     uploadedAt: data.uploadedAt?.toDate?.()?.toISOString()?.split('T')[0] || new Date().toISOString().split('T')[0],
+    clientId: data.clientId || '',
     clientName: data.clientName || '',
     projectName: data.projectName || '',
     url: data.url || '',
@@ -78,7 +82,7 @@ export const getFiles = async (): Promise<FileItem[]> => {
 // Upload file to Firebase Storage and save metadata to Firestore
 export const uploadFile = async (fileData: FileUploadData): Promise<FileItem> => {
   try {
-    const { file, clientName, projectName, uploadedBy } = fileData;
+    const { file, clientId, clientName, projectName, uploadedBy } = fileData;
     
     // Create unique filename
     const timestamp = Date.now();
@@ -100,6 +104,7 @@ export const uploadFile = async (fileData: FileUploadData): Promise<FileItem> =>
       size: file.size,
       uploadedBy,
       uploadedAt: serverTimestamp(),
+      clientId: clientId || '',
       clientName,
       projectName,
       url: downloadURL,
@@ -116,6 +121,7 @@ export const uploadFile = async (fileData: FileUploadData): Promise<FileItem> =>
       size: file.size,
       uploadedBy,
       uploadedAt: new Date().toISOString().split('T')[0],
+      clientId: clientId || '',
       clientName,
       projectName,
       url: downloadURL,
@@ -133,6 +139,7 @@ export const uploadFile = async (fileData: FileUploadData): Promise<FileItem> =>
       size: fileData.file.size,
       uploadedBy: fileData.uploadedBy,
       uploadedAt: new Date().toISOString().split('T')[0],
+      clientId: fileData.clientId || '',
       clientName: fileData.clientName,
       projectName: fileData.projectName,
       url: URL.createObjectURL(fileData.file),
@@ -188,18 +195,17 @@ export const toggleFileSharing = async (fileId: string, shared: boolean): Promis
 };
 
 // Get files by client
-export const getFilesByClient = async (clientName: string): Promise<FileItem[]> => {
+export const getFilesByClient = async (clientId: string): Promise<FileItem[]> => {
   try {
     const filesRef = collection(db, 'files');
     const q = query(
-      filesRef, 
+      filesRef,
+      where('clientId', '==', clientId),
+      where('shared', '==', true),
       orderBy('uploadedAt', 'desc')
     );
     const querySnapshot = await getDocs(q);
-    
-    return querySnapshot.docs
-      .map(docToFileItem)
-      .filter(file => file.clientName === clientName);
+    return querySnapshot.docs.map(docToFileItem);
   } catch (error) {
     console.error('Error fetching client files:', error);
     throw new Error('Failed to fetch client files');
