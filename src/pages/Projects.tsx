@@ -35,6 +35,7 @@ interface ProjectForm {
   startDate: string;
   endDate: string;
   budget: number;
+  teamMembers: string;
 }
 
 function Projects() {
@@ -93,11 +94,16 @@ function Projects() {
   }, []);
 
   const onSubmit = (data: ProjectForm) => {
+    const { teamMembers, ...rest } = data;
+    const membersArray = teamMembers
+      ? teamMembers.split(',').map(m => m.trim()).filter(Boolean)
+      : [];
+
     if (editingProject) {
       // Update existing project
-      setProjects(projects.map(project => 
-        project.id === editingProject.id 
-          ? { ...project, ...data }
+      setProjects(projects.map(project =>
+        project.id === editingProject.id
+          ? { ...project, ...rest, teamMembers: membersArray }
           : project
       ));
       toast.success('Project updated successfully!');
@@ -105,15 +111,15 @@ function Projects() {
       // Add new project
       const newProject: Project = {
         id: Date.now().toString(),
-        ...data,
+        ...rest,
         status: 'planning',
         progress: 0,
-        teamMembers: [],
+        teamMembers: membersArray,
       };
       setProjects([...projects, newProject]);
       toast.success('Project created successfully!');
     }
-    
+
     setShowForm(false);
     setEditingProject(null);
     reset();
@@ -122,7 +128,7 @@ function Projects() {
   const handleEdit = (project: Project) => {
     setEditingProject(project);
     setShowForm(true);
-    reset(project);
+    reset({ ...project, teamMembers: project.teamMembers.join(', ') });
   };
 
   const handleDelete = (projectId: string) => {
@@ -249,7 +255,7 @@ function Projects() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Budget</label>
                 <input
-                  {...register('budget', { 
+                  {...register('budget', {
                     required: 'Budget is required',
                     min: { value: 0, message: 'Budget must be positive' },
                   })}
@@ -261,6 +267,14 @@ function Projects() {
                 {errors.budget && (
                   <p className="mt-1 text-sm text-red-600">{errors.budget.message}</p>
                 )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Team Members</label>
+                <input
+                  {...register('teamMembers')}
+                  className="input-field"
+                  placeholder="Comma separated names"
+                />
               </div>
             </div>
             <div>

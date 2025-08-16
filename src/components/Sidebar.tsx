@@ -21,6 +21,7 @@ function Sidebar() {
       return [
         { name: 'Dashboard', href: '/dashboard', icon: Home },
         { name: 'Project Requests', href: '/project-request', icon: Briefcase },
+        { name: 'Employees', href: '/employees', icon: Users },
         { name: 'My Projects', href: '/projects', icon: FolderOpen },
         { name: 'Files', href: '/files', icon: Upload },
         { name: 'Settings', href: '/settings', icon: SettingsIcon },
@@ -37,10 +38,9 @@ function Sidebar() {
         { name: 'Settings', href: '/settings', icon: SettingsIcon },
       ];
     } else {
-      // Default navigation for freelancers
+      // Default navigation for employees/freelancers
       return [
         { name: 'Dashboard', href: '/dashboard', icon: Home },
-        { name: 'Employees', href: '/employees', icon: Users },
         { name: 'Invoices', href: '/invoices', icon: FileText },
         { name: 'Projects', href: '/projects', icon: FolderOpen },
         { name: 'Files', href: '/files', icon: Upload },
