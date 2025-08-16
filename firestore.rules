@@ -39,6 +39,15 @@ service cloud.firestore {
       allow write: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('freelancer') || hasRole('team_member'));
     }
 
+    match /projectRequests/{requestId} {
+      allow create: if isSignedIn() && onboardingComplete() && hasRole('client');
+      allow read: if isSignedIn() && onboardingComplete() &&
+        (hasRole('admin') || hasRole('freelancer') || resource.data.clientId == request.auth.uid);
+      allow update: if isSignedIn() && onboardingComplete() && (hasRole('admin') || hasRole('freelancer'));
+      allow delete: if isSignedIn() && onboardingComplete() &&
+        (hasRole('admin') || resource.data.clientId == request.auth.uid);
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

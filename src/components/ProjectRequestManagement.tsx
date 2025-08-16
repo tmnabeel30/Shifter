@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { 
-  Eye, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
+import {
+  Eye,
+  CheckCircle,
+  XCircle,
+  Clock,
   Calendar,
   DollarSign,
   Briefcase,
@@ -11,22 +11,11 @@ import {
   Filter
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-interface ProjectRequest {
-  id: string;
-  projectName: string;
-  description: string;
-  budget: string;
-  timeline: string;
-  category: string;
-  skills: string[];
-  additionalRequirements: string;
-  clientId: string;
-  clientName: string;
-  clientEmail: string;
-  status: 'pending' | 'approved' | 'rejected' | 'in-progress';
-  createdAt: Date;
-}
+import {
+  getProjectRequests,
+  updateRequestStatus,
+  ProjectRequest
+} from '../firebase/projectRequests';
 
 function ProjectRequestManagement() {
   const [projectRequests, setProjectRequests] = useState<ProjectRequest[]>([]);
@@ -36,65 +25,31 @@ function ProjectRequestManagement() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   useEffect(() => {
-    // Mock data - in real app, fetch from Firebase
-    setProjectRequests([
-      {
-        id: '1',
-        projectName: 'E-commerce Website Redesign',
-        description: 'Need a modern e-commerce website with payment integration and inventory management.',
-        budget: '$5,000 - $10,000',
-        timeline: '2-3 months',
-        category: 'Website Development',
-        skills: ['Web Development', 'UI/UX Design', 'E-commerce'],
-        additionalRequirements: 'Must be mobile responsive and SEO optimized',
-        clientId: 'client1',
-        clientName: 'John Smith',
-        clientEmail: 'john@example.com',
-        status: 'pending',
-        createdAt: new Date('2024-01-15'),
-      },
-      {
-        id: '2',
-        projectName: 'Mobile App for Food Delivery',
-        description: 'iOS and Android app for food delivery service with real-time tracking.',
-        budget: '$25,000 - $50,000',
-        timeline: '3-6 months',
-        category: 'Mobile App',
-        skills: ['Mobile Development', 'UI/UX Design', 'Backend Development'],
-        additionalRequirements: 'Integration with payment gateways and maps API',
-        clientId: 'client2',
-        clientName: 'Sarah Johnson',
-        clientEmail: 'sarah@example.com',
-        status: 'approved',
-        createdAt: new Date('2024-01-10'),
-      },
-      {
-        id: '3',
-        projectName: 'Brand Identity Design',
-        description: 'Complete brand identity including logo, color palette, and brand guidelines.',
-        budget: '$1,000 - $5,000',
-        timeline: '1 month',
-        category: 'Design & Branding',
-        skills: ['Graphic Design', 'Branding'],
-        additionalRequirements: 'Modern and minimalist design approach',
-        clientId: 'client3',
-        clientName: 'Mike Wilson',
-        clientEmail: 'mike@example.com',
-        status: 'in-progress',
-        createdAt: new Date('2024-01-08'),
-      },
-    ]);
+    const fetchRequests = async () => {
+      const requests = await getProjectRequests();
+      setProjectRequests(requests);
+    };
+
+    fetchRequests();
   }, []);
 
-  const handleStatusUpdate = (requestId: string, newStatus: ProjectRequest['status']) => {
-    setProjectRequests(prev => 
-      prev.map(request => 
-        request.id === requestId 
-          ? { ...request, status: newStatus }
-          : request
-      )
-    );
-    toast.success(`Project request ${newStatus}`);
+  const handleStatusUpdate = async (
+    requestId: string,
+    newStatus: ProjectRequest['status']
+  ) => {
+    try {
+      await updateRequestStatus(requestId, newStatus);
+      setProjectRequests(prev =>
+        prev.map(request =>
+          request.id === requestId
+            ? { ...request, status: newStatus }
+            : request
+        )
+      );
+      toast.success(`Project request ${newStatus}`);
+    } catch (error) {
+      toast.error('Failed to update request status');
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -278,7 +233,7 @@ function ProjectRequestManagement() {
                   <div className="space-y-1 text-sm">
                     <p><strong>Name:</strong> {selectedRequest.clientName}</p>
                     <p><strong>Email:</strong> {selectedRequest.clientEmail}</p>
-                    <p><strong>Submitted:</strong> {selectedRequest.createdAt.toLocaleDateString()}</p>
+                    <p><strong>Submitted:</strong> {new Date(selectedRequest.createdAt).toLocaleDateString()}</p>
                   </div>
                 </div>
 

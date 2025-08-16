@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { addProjectRequest } from '../firebase/projectRequests';
 
 interface ProjectRequestForm {
   projectName: string;
@@ -67,20 +68,14 @@ function ProjectRequest() {
 
   const onSubmit = async (data: ProjectRequestForm) => {
     try {
-      const projectRequest = {
+      await addProjectRequest({
         ...data,
         skills: selectedSkills,
-        clientId: currentUser?.id,
-        clientName: currentUser?.name,
-        clientEmail: currentUser?.email,
-        status: 'pending',
-        createdAt: new Date(),
-        id: Date.now().toString(),
-      };
+        clientId: currentUser?.id || '',
+        clientName: currentUser?.name || '',
+        clientEmail: currentUser?.email || '',
+      });
 
-      // In a real app, you'd save this to Firebase
-      console.log('Project Request:', projectRequest);
-      
       toast.success('Project request submitted successfully!');
       setShowForm(false);
       reset();
