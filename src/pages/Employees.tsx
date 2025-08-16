@@ -63,17 +63,19 @@ function Employees() {
       if (editingClient) {
         // Update existing employee
         await updateClient(editingClient.id, data);
-        setClients(clients.map(client =>
-          client.id === editingClient.id
-            ? { ...client, ...data }
-            : client
-        ));
+        setClients(prevClients =>
+          prevClients.map(client =>
+            client.id === editingClient.id
+              ? { ...client, ...data }
+              : client
+          )
+        );
         toast.success('Employee updated successfully!');
       } else {
         // Add new employee
         if (!currentUser) throw new Error('Not authenticated');
         const newClient = await addClient(data, currentUser.id);
-        setClients([newClient, ...clients]);
+        setClients(prevClients => [newClient, ...prevClients]);
         toast.success('Employee added successfully!');
       }
       
@@ -97,7 +99,7 @@ function Employees() {
   const handleDelete = async (clientId: string) => {
     try {
       await deleteClient(clientId);
-      setClients(clients.filter(client => client.id !== clientId));
+      setClients(prevClients => prevClients.filter(client => client.id !== clientId));
       toast.success('Employee deleted successfully!');
     } catch (error) {
       console.error('Error deleting employee:', error);
@@ -300,9 +302,11 @@ function Employees() {
                                 ? 'active'
                                 : newStatus;
                             await updateClientStatus(client.id, finalStatus);
-                            setClients(clients.map(c =>
-                              c.id === client.id ? { ...c, status: finalStatus } : c
-                            ));
+                            setClients(prevClients =>
+                              prevClients.map(c =>
+                                c.id === client.id ? { ...c, status: finalStatus } : c
+                              )
+                            );
                             toast.success(`Employee ${finalStatus}`);
                           } catch (error) {
                             toast.error('Failed to update status');
