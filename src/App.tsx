@@ -15,6 +15,8 @@ import Layout from './components/Layout';
 import Onboarding from './components/Onboarding';
 import ProjectRequest from './components/ProjectRequest';
 import ProjectRequestManagement from './components/ProjectRequestManagement';
+import ProjectDashboard from './pages/ProjectDashboard';
+import Tasks from './pages/Tasks';
 
 function App() {
   const { currentUser } = useAuth();
@@ -76,6 +78,8 @@ function App() {
             <Route path="employees" element={<Employees />} />
             <Route path="invoices" element={<Invoices />} />
             <Route path="projects" element={<Projects />} />
+            <Route path="projects/:projectId" element={<ProjectDashboard />} />
+            <Route path="tasks" element={<Tasks />} />
             <Route path="files" element={<Files />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="settings" element={<Settings />} />
