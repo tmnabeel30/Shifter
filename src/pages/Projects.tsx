@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -15,19 +15,13 @@ import {
   MessageSquare
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-interface Project {
-  id: string;
-  name: string;
-  clientName: string;
-  description: string;
-  status: 'planning' | 'in-progress' | 'review' | 'completed' | 'on-hold';
-  startDate: string;
-  endDate: string;
-  progress: number;
-  budget: number;
-  teamMembers: string[];
-}
+import { useProjects } from '../hooks/useProjects';
+import {
+  addProject,
+  updateProject,
+  deleteProject,
+  Project,
+} from '../firebase/projects';
 
 interface ProjectForm {
   name: string;
@@ -40,7 +34,7 @@ interface ProjectForm {
 }
 
 function Projects() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const projects = useProjects();
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -53,73 +47,28 @@ function Projects() {
     formState: { errors },
   } = useForm<ProjectForm>();
 
-  useEffect(() => {
-    // Mock data - in real app, fetch from Firebase
-    setProjects([
-      {
-        id: '1',
-        name: 'Website Redesign',
-        clientName: 'John Smith',
-        description: 'Complete redesign of the company website with modern UI/UX',
-        status: 'in-progress',
-        startDate: '2024-01-01',
-        endDate: '2024-02-15',
-        progress: 65,
-        budget: 5000,
-        teamMembers: ['Designer', 'Developer'],
-      },
-      {
-        id: '2',
-        name: 'Mobile App Development',
-        clientName: 'Sarah Johnson',
-        description: 'iOS and Android app for food delivery service',
-        status: 'planning',
-        startDate: '2024-02-01',
-        endDate: '2024-05-01',
-        progress: 15,
-        budget: 15000,
-        teamMembers: ['Product Manager', 'Developer', 'Designer'],
-      },
-      {
-        id: '3',
-        name: 'Brand Identity Design',
-        clientName: 'Mike Wilson',
-        description: 'Logo design and brand guidelines for startup',
-        status: 'completed',
-        startDate: '2023-12-01',
-        endDate: '2024-01-15',
-        progress: 100,
-        budget: 3000,
-        teamMembers: ['Designer'],
-      },
-    ]);
-  }, []);
-
-  const onSubmit = (data: ProjectForm) => {
+  const onSubmit = async (data: ProjectForm) => {
     const { teamMembers, ...rest } = data;
     const membersArray = teamMembers
       ? teamMembers.split(',').map(m => m.trim()).filter(Boolean)
       : [];
 
-    if (editingProject) {
-      // Update existing project
-      setProjects(projects.map(project =>
-        project.id === editingProject.id
-          ? { ...project, ...rest, teamMembers: membersArray }
-          : project
-      ));
-      toast.success('Project updated successfully!');
-    } else {
-      // Add new project
-      const newProject: Project = {
-        id: Date.now().toString(),
-        ...rest,
-        status: 'planning',
-        progress: 0,
-        teamMembers: membersArray,
-      };
-      setProjects([...projects, newProject]);
-      toast.success('Project created successfully!');
+    try {
+      if (editingProject) {
+        await updateProject(editingProject.id, {
+          ...rest,
+          teamMembers: membersArray,
+        });
+        toast.success('Project updated successfully!');
+      } else {
+        await addProject({
+          ...rest,
+          teamMembers: membersArray,
+        });
+        toast.success('Project created successfully!');
+      }
+    } catch (error) {
+      toast.error('Error saving project');
     }
 
     setShowForm(false);
@@ -133,9 +82,13 @@ function Projects() {
     reset({ ...project, teamMembers: project.teamMembers.join(', ') });
   };
 
-  const handleDelete = (projectId: string) => {
-    setProjects(projects.filter(project => project.id !== projectId));
-    toast.success('Project deleted successfully!');
+  const handleDelete = async (projectId: string) => {
+    try {
+      await deleteProject(projectId);
+      toast.success('Project deleted successfully!');
+    } catch {
+      toast.error('Failed to delete project');
+    }
   };
 
   const getStatusIcon = (status: string) => {
