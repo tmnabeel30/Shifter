@@ -15,7 +15,7 @@ interface ProfileForm {
 }
 
 function ProfileSettings() {
-  const { currentUser, updateUserRole } = useAuth();
+  const { currentUser, updateUserRole, updateProfile } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [avatar, setAvatar] = useState<File | null>(null);
 
@@ -39,12 +39,8 @@ function ProfileSettings() {
   const onSubmit = async (data: ProfileForm) => {
     try {
       setIsLoading(true);
-      // In real app, update user profile in Firebase
-      console.log('Updating profile:', data);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await updateProfile(data, avatar || undefined);
+      reset(data);
       toast.success('Profile updated successfully!');
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -64,6 +60,9 @@ function ProfileSettings() {
   const getAvatarPreview = () => {
     if (avatar) {
       return URL.createObjectURL(avatar);
+    }
+    if (currentUser?.avatar) {
+      return currentUser.avatar;
     }
     return null;
   };

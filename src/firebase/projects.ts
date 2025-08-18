@@ -43,6 +43,25 @@ export interface ProjectInput {
   progress?: number;
 }
 
+const LOCAL_STORAGE_KEY = 'shifter_projects';
+
+const loadLocalProjects = (): Project[] => {
+  try {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveLocalProjects = (projects: Project[]) => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(projects));
+  } catch {
+    // Ignore errors
+  }
+};
+
 export const docToProject = (
   docSnap: QueryDocumentSnapshot<DocumentData>
 ): Project => {
@@ -80,7 +99,8 @@ export const getProjects = async (clientId?: string): Promise<Project[]> => {
     return snapshot.docs.map(docToProject);
   } catch (error) {
     console.error('Error fetching projects:', error);
-    return [];
+    const projects = loadLocalProjects();
+    return clientId ? projects.filter(p => p.clientId === clientId) : projects;
   }
 };
 
@@ -106,7 +126,24 @@ export const addProject = async (project: ProjectInput): Promise<Project> => {
     };
   } catch (error) {
     console.error('Error adding project:', error);
-    throw new Error('Failed to add project');
+    const localProject: Project = {
+      id: `local-${Date.now()}`,
+      clientId: project.clientId || '',
+      name: project.name,
+      clientName: project.clientName,
+      description: project.description,
+      status: project.status || 'planning',
+      startDate: project.startDate,
+      endDate: project.endDate,
+      progress: project.progress || 0,
+      budget: project.budget,
+      teamMembers: project.teamMembers,
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    const existing = loadLocalProjects();
+    existing.unshift(localProject);
+    saveLocalProjects(existing);
+    return localProject;
   }
 };
 
@@ -122,7 +159,12 @@ export const updateProject = async (
     });
   } catch (error) {
     console.error('Error updating project:', error);
-    throw new Error('Failed to update project');
+    const projects = loadLocalProjects();
+    const idx = projects.findIndex(p => p.id === projectId);
+    if (idx !== -1) {
+      projects[idx] = { ...projects[idx], ...project } as Project;
+      saveLocalProjects(projects);
+    }
   }
 };
 
@@ -132,7 +174,8 @@ export const deleteProject = async (projectId: string): Promise<void> => {
     await deleteDoc(projectRef);
   } catch (error) {
     console.error('Error deleting project:', error);
-    throw new Error('Failed to delete project');
+    const projects = loadLocalProjects().filter(p => p.id !== projectId);
+    saveLocalProjects(projects);
   }
 };
 

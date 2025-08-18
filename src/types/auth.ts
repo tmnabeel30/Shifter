@@ -7,6 +7,10 @@ export interface User {
   role: UserRole;
   company?: string;
   avatar?: string;
+  phone?: string;
+  bio?: string;
+  website?: string;
+  location?: string;
   permissions: Permission[];
   createdAt: Date;
   lastLogin?: Date;
