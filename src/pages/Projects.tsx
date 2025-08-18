@@ -22,6 +22,7 @@ import {
   deleteProject,
   Project,
 } from '../firebase/projects';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ProjectForm {
   name: string;
@@ -35,6 +36,8 @@ interface ProjectForm {
 
 function Projects() {
   const projects = useProjects();
+  const { currentUser } = useAuth();
+  const canManage = currentUser?.role === 'employer';
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -48,6 +51,10 @@ function Projects() {
   } = useForm<ProjectForm>();
 
   const onSubmit = async (data: ProjectForm) => {
+    if (!canManage) {
+      toast.error('Only employers can manage projects');
+      return;
+    }
     const { teamMembers, budget, ...rest } = data;
     const membersArray = teamMembers
       ? teamMembers.split(',').map(m => m.trim()).filter(Boolean)
@@ -84,12 +91,14 @@ function Projects() {
   };
 
   const handleEdit = (project: Project) => {
+    if (!canManage) return;
     setEditingProject(project);
     setShowForm(true);
     reset({ ...project, teamMembers: project.teamMembers.join(', ') });
   };
 
   const handleDelete = async (projectId: string) => {
+    if (!canManage) return;
     try {
       await deleteProject(projectId);
       toast.success('Project deleted successfully!');
@@ -141,13 +150,15 @@ function Projects() {
           <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
           <p className="text-gray-600">Manage your projects and track progress.</p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="btn-primary flex items-center"
-        >
-          <Plus className="h-5 w-5 mr-2" />
-          New Project
-        </button>
+        {canManage && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="btn-primary flex items-center"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            New Project
+          </button>
+        )}
       </div>
 
       {/* Search */}
@@ -163,7 +174,7 @@ function Projects() {
       </div>
 
       {/* Add/Edit Form */}
-      {showForm && (
+      {showForm && canManage && (
         <div className="card">
           <h2 className="text-lg font-medium text-gray-900 mb-4">
             {editingProject ? 'Edit Project' : 'Create New Project'}
@@ -333,18 +344,22 @@ function Projects() {
                 >
                   <Eye className="h-4 w-4" />
                 </button>
-                <button
-                  onClick={() => handleEdit(project)}
-                  className="text-indigo-600 hover:text-indigo-900"
-                >
-                  <Edit className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(project.id)}
-                  className="text-red-600 hover:text-red-900"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                {canManage && (
+                  <>
+                    <button
+                      onClick={() => handleEdit(project)}
+                      className="text-indigo-600 hover:text-indigo-900"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(project.id)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
               </div>
               <button className="text-gray-600 hover:text-gray-900">
                 <MessageSquare className="h-4 w-4" />

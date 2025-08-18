@@ -34,10 +34,14 @@ function ProjectDashboard() {
     const tasksRef = collection(db, 'tasks');
     const q = query(tasksRef, where('projectId', '==', projectId), orderBy('dueDate', 'asc'));
     const unsubscribe = onSnapshot(q, snapshot => {
-      setTasks(snapshot.docs.map(docToTask));
+      const all = snapshot.docs.map(docToTask);
+      const filtered = currentUser?.role === 'team_member'
+        ? all.filter(t => t.assigneeId === currentUser.id)
+        : all;
+      setTasks(filtered);
     });
     return unsubscribe;
-  }, [projectId]);
+  }, [projectId, currentUser]);
 
   useEffect(() => {
     const fetchEmployees = async () => {
