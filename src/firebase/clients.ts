@@ -1,9 +1,9 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
+import {
+  collection,
+  doc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
   getDocs,
   query,
   orderBy,
@@ -34,6 +34,25 @@ export interface ClientFormData {
   company: string;
 }
 
+const LOCAL_STORAGE_KEY = 'shifter_clients';
+
+const loadLocalClients = (): Client[] => {
+  try {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveLocalClients = (clients: Client[]) => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(clients));
+  } catch {
+    // Ignore write errors
+  }
+};
+
 // Convert Firestore document to Client object
 const docToClient = (docSnap: QueryDocumentSnapshot<DocumentData>): Client => {
   const data = docSnap.data();
@@ -61,8 +80,7 @@ export const getClients = async (userId: string): Promise<Client[]> => {
     return querySnapshot.docs.map(docToClient);
   } catch (error) {
     console.error('Error fetching clients:', error);
-    // Return an empty list in offline or error scenarios
-    return [];
+    return loadLocalClients().filter(c => c.ownerId === userId);
   }
 };
 
@@ -92,7 +110,19 @@ export const addClient = async (clientData: ClientFormData, ownerId: string): Pr
     };
   } catch (error) {
     console.error('Error adding client:', error);
-    throw new Error('Failed to add client');
+    // Fallback to local storage when Firestore isn't available
+    const localClient: Client = {
+      id: `local-${Date.now()}`,
+      ownerId,
+      ...clientData,
+      portalUrl: `https://shifter.com/portal/client${Date.now()}`,
+      status: 'request-sent',
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+    const existing = loadLocalClients();
+    existing.unshift(localClient);
+    saveLocalClients(existing);
+    return localClient;
   }
 };
 
@@ -106,7 +136,13 @@ export const updateClient = async (clientId: string, clientData: ClientFormData)
     });
   } catch (error) {
     console.error('Error updating client:', error);
-    throw new Error('Failed to update client');
+    // Update local storage fallback
+    const clients = loadLocalClients();
+    const idx = clients.findIndex(c => c.id === clientId);
+    if (idx !== -1) {
+      clients[idx] = { ...clients[idx], ...clientData };
+      saveLocalClients(clients);
+    }
   }
 };
 
@@ -117,7 +153,8 @@ export const deleteClient = async (clientId: string): Promise<void> => {
     await deleteDoc(clientRef);
   } catch (error) {
     console.error('Error deleting client:', error);
-    throw new Error('Failed to delete client');
+    const clients = loadLocalClients().filter(c => c.id !== clientId);
+    saveLocalClients(clients);
   }
 };
 
@@ -134,7 +171,12 @@ export const updateClientStatus = async (
     });
   } catch (error) {
     console.error('Error updating client status:', error);
-    throw new Error('Failed to update client status');
+     const clients = loadLocalClients();
+     const idx = clients.findIndex(c => c.id === clientId);
+     if (idx !== -1) {
+       clients[idx].status = status;
+       saveLocalClients(clients);
+     }
   }
 };
 

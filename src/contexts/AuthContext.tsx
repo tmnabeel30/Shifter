@@ -10,6 +10,7 @@ import {
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
 import { User, UserRole } from '../types/auth';
+import { updateUserProfile, UserProfile } from '../firebase/users';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -19,6 +20,7 @@ interface AuthContextType {
   loading: boolean;
   updateUserRole: (_role: UserRole) => Promise<void>;
   completeOnboarding: () => Promise<void>;
+  updateProfile: (_data: UserProfile, _avatar?: File) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,6 +49,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       createdAt: new Date(),
       onboardingCompleted: false,
       onboardingStep: 1,
+      company: '',
+      avatar: '',
+      phone: '',
+      bio: '',
+      website: '',
+      location: '',
     };
     await setDoc(userRef, {
       email: customUser.email,
@@ -56,6 +64,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       createdAt: serverTimestamp(),
       onboardingCompleted: false,
       onboardingStep: 1,
+      company: '',
+      avatar: '',
+      phone: '',
+      bio: '',
+      website: '',
+      location: '',
     });
     setCurrentUser(customUser);
     return customUser;
@@ -78,6 +92,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         createdAt: data.createdAt?.toDate?.() || new Date(),
         onboardingCompleted: data.onboardingCompleted || false,
         onboardingStep: data.onboardingStep || 1,
+        company: data.company || '',
+        avatar: data.avatar || '',
+        phone: data.phone || '',
+        bio: data.bio || '',
+        website: data.website || '',
+        location: data.location || '',
       };
     } else {
       customUser = {
@@ -89,6 +109,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         createdAt: new Date(),
         onboardingCompleted: false,
         onboardingStep: 1,
+        company: '',
+        avatar: '',
+        phone: '',
+        bio: '',
+        website: '',
+        location: '',
       };
       await setDoc(userRef, {
         email: customUser.email,
@@ -98,6 +124,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         createdAt: serverTimestamp(),
         onboardingCompleted: false,
         onboardingStep: 1,
+        company: '',
+        avatar: '',
+        phone: '',
+        bio: '',
+        website: '',
+        location: '',
       });
     }
     setCurrentUser(customUser);
@@ -130,6 +162,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  async function updateProfile(data: UserProfile, avatar?: File) {
+    if (!currentUser) return;
+    const updated = await updateUserProfile(currentUser.id, data, avatar);
+    setCurrentUser(prev => (prev ? { ...prev, ...updated } : prev));
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
@@ -146,6 +184,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             createdAt: data.createdAt?.toDate?.() || new Date(),
             onboardingCompleted: data.onboardingCompleted || false,
             onboardingStep: data.onboardingStep || 1,
+            company: data.company || '',
+            avatar: data.avatar || '',
+            phone: data.phone || '',
+            bio: data.bio || '',
+            website: data.website || '',
+            location: data.location || '',
           };
           setCurrentUser(customUser);
         } else {
@@ -158,6 +202,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             createdAt: new Date(),
             onboardingCompleted: false,
             onboardingStep: 1,
+            company: '',
+            avatar: '',
+            phone: '',
+            bio: '',
+            website: '',
+            location: '',
           };
           await setDoc(userRef, {
             email: customUser.email,
@@ -167,6 +217,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             createdAt: serverTimestamp(),
             onboardingCompleted: false,
             onboardingStep: 1,
+            company: '',
+            avatar: '',
+            phone: '',
+            bio: '',
+            website: '',
+            location: '',
           });
           setCurrentUser(customUser);
         }
@@ -187,6 +243,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     updateUserRole,
     completeOnboarding,
+    updateProfile,
   };
 
   return (
