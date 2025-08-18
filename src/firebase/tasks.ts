@@ -35,6 +35,25 @@ export interface TaskInput {
   dueDate: string;
 }
 
+const LOCAL_STORAGE_KEY = 'shifter_tasks';
+
+const loadLocalTasks = (): Task[] => {
+  try {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveLocalTasks = (tasks: Task[]) => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(tasks));
+  } catch {
+    // ignore write errors
+  }
+};
+
 export const docToTask = (
   docSnap: QueryDocumentSnapshot<DocumentData>
 ): Task => {
@@ -62,7 +81,7 @@ export const getTasksForUser = async (userId: string): Promise<Task[]> => {
     return snapshot.docs.map(docToTask);
   } catch (error) {
     console.error('Error fetching tasks:', error);
-    return [];
+    return loadLocalTasks().filter(t => t.assigneeId === userId);
   }
 };
 
@@ -84,7 +103,21 @@ export const addTask = async (task: TaskInput): Promise<Task> => {
     };
   } catch (error) {
     console.error('Error adding task:', error);
-    throw new Error('Failed to add task');
+    const localTask: Task = {
+      id: `local-${Date.now()}`,
+      projectId: task.projectId,
+      title: task.title,
+      assigneeId: task.assigneeId,
+      assigneeName: task.assigneeName,
+      status: task.status || 'todo',
+      dueDate: task.dueDate,
+      createdAt: new Date().toISOString().split('T')[0],
+      updatedAt: new Date().toISOString().split('T')[0],
+    };
+    const existing = loadLocalTasks();
+    existing.unshift(localTask);
+    saveLocalTasks(existing);
+    return localTask;
   }
 };
 
@@ -100,7 +133,16 @@ export const updateTask = async (
     });
   } catch (error) {
     console.error('Error updating task:', error);
-    throw new Error('Failed to update task');
+    const tasks = loadLocalTasks();
+    const idx = tasks.findIndex(t => t.id === taskId);
+    if (idx !== -1) {
+      tasks[idx] = {
+        ...tasks[idx],
+        ...data,
+        updatedAt: new Date().toISOString().split('T')[0],
+      } as Task;
+      saveLocalTasks(tasks);
+    }
   }
 };
 
@@ -116,7 +158,13 @@ export const updateTaskStatus = async (
     });
   } catch (error) {
     console.error('Error updating task status:', error);
-    throw new Error('Failed to update task status');
+    const tasks = loadLocalTasks();
+    const idx = tasks.findIndex(t => t.id === taskId);
+    if (idx !== -1) {
+      tasks[idx].status = status;
+      tasks[idx].updatedAt = new Date().toISOString().split('T')[0];
+      saveLocalTasks(tasks);
+    }
   }
 };
 
@@ -126,7 +174,8 @@ export const deleteTask = async (taskId: string): Promise<void> => {
     await deleteDoc(taskRef);
   } catch (error) {
     console.error('Error deleting task:', error);
-    throw new Error('Failed to delete task');
+    const tasks = loadLocalTasks().filter(t => t.id !== taskId);
+    saveLocalTasks(tasks);
   }
 };
 
