@@ -1,17 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { 
-  User, 
-  Building, 
-  Shield, 
-  Users, 
-  ArrowRight, 
+import {
+  User,
+  Building,
+  Users,
+  ArrowRight,
   ArrowLeft,
   CheckCircle,
   Phone,
-  Globe,
-  Briefcase
+  Globe
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
@@ -21,16 +19,12 @@ interface OnboardingForm {
   company?: string;
   phone?: string;
   website?: string;
-  role: 'client' | 'admin';
-  projectName?: string;
-  projectDescription?: string;
-  budget?: number;
-  timeline?: string;
+  role: 'employer' | 'team_member';
 }
 
 function Onboarding() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedRole, setSelectedRole] = useState<'client' | 'admin' | null>(null);
+  const [selectedRole, setSelectedRole] = useState<'employer' | 'team_member' | null>(null);
   const { currentUser, updateUserRole, completeOnboarding } = useAuth();
   const navigate = useNavigate();
 
@@ -45,11 +39,17 @@ function Onboarding() {
     { id: 1, title: 'Welcome', description: 'Let\'s get you started' },
     { id: 2, title: 'Choose Access Type', description: 'Select your role' },
     { id: 3, title: 'Profile Setup', description: 'Tell us about yourself' },
-    { id: 4, title: selectedRole === 'client' ? 'Project Details' : 'Company Setup', description: selectedRole === 'client' ? 'Describe your project' : 'Set up your company' },
+    {
+      id: 4,
+      title: selectedRole === 'employer' ? 'Company Setup' : 'Profile Setup',
+      description: selectedRole === 'employer'
+        ? 'Set up your company'
+        : 'Tell us about yourself',
+    },
     { id: 5, title: 'Complete', description: 'You\'re all set!' },
   ];
 
-  const handleRoleSelect = (role: 'client' | 'admin') => {
+  const handleRoleSelect = (role: 'employer' | 'team_member') => {
     setSelectedRole(role);
     setCurrentStep(3);
   };
@@ -107,27 +107,31 @@ function Onboarding() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Client Option */}
-        <div 
+        {/* Employer Option */}
+        <div
           className={`card cursor-pointer transition-all duration-200 hover:shadow-lg ${
-            selectedRole === 'client' ? 'ring-2 ring-primary-500 bg-primary-50' : ''
+            selectedRole === 'employer' ? 'ring-2 ring-primary-500 bg-primary-50' : ''
           }`}
-          onClick={() => handleRoleSelect('client')}
+          onClick={() => handleRoleSelect('employer')}
         >
           <div className="text-center space-y-4">
             <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <Users className="h-6 w-6 text-blue-600" />
+              <Building className="h-6 w-6 text-blue-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Client Access</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Employer Access</h3>
               <p className="text-sm text-gray-600 mt-1">
-                I want to view and work on projects assigned to me
+                I want to manage projects and assign tasks
               </p>
             </div>
             <ul className="text-sm text-gray-600 space-y-2 text-left">
               <li className="flex items-center">
                 <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Submit project requests
+                Create and manage projects
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                Assign tasks to employees
               </li>
               <li className="flex items-center">
                 <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
@@ -135,49 +139,45 @@ function Onboarding() {
               </li>
               <li className="flex items-center">
                 <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Manage invoices and payments
-              </li>
-              <li className="flex items-center">
-                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Access project files and updates
+                Manage invoices and files
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Admin Option */}
-        <div 
+        {/* Employee Option */}
+        <div
           className={`card cursor-pointer transition-all duration-200 hover:shadow-lg ${
-            selectedRole === 'admin' ? 'ring-2 ring-primary-500 bg-primary-50' : ''
+            selectedRole === 'team_member' ? 'ring-2 ring-primary-500 bg-primary-50' : ''
           }`}
-          onClick={() => handleRoleSelect('admin')}
+          onClick={() => handleRoleSelect('team_member')}
         >
           <div className="text-center space-y-4">
             <div className="mx-auto w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-              <Shield className="h-6 w-6 text-purple-600" />
+              <Users className="h-6 w-6 text-purple-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Admin Access</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Employee Access</h3>
               <p className="text-sm text-gray-600 mt-1">
-                I want to manage the platform and team
+                I work on tasks assigned to me
               </p>
             </div>
             <ul className="text-sm text-gray-600 space-y-2 text-left">
               <li className="flex items-center">
                 <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Manage all projects and clients
+                View assigned tasks
               </li>
               <li className="flex items-center">
                 <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Access analytics and reports
+                Update task status
               </li>
               <li className="flex items-center">
                 <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Configure system settings
+                Collaborate with team
               </li>
               <li className="flex items-center">
                 <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Manage team permissions
+                Access project files
               </li>
             </ul>
           </div>
@@ -279,85 +279,25 @@ function Onboarding() {
     </div>
   );
 
-  const renderStep4 = () => (
+  
+
+    const renderStep4 = () => (
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900">
-          {selectedRole === 'client' ? 'Project Details' : 'Company Setup'}
+          {selectedRole === 'employer' ? 'Company Setup' : 'Profile Setup'}
         </h2>
         <p className="text-gray-600 mt-2">
-          {selectedRole === 'client' 
-            ? 'Tell us about your project requirements' 
-            : 'Set up your company information'
-          }
+          {selectedRole === 'employer'
+            ? 'Set up your company information'
+            : 'Confirm your details'}
         </p>
       </div>
-      
-      {selectedRole === 'client' ? (
+
+      {selectedRole === 'employer' ? (
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Briefcase className="h-4 w-4 inline mr-1" />
-              Project Name
-            </label>
-            <input
-              {...register('projectName')}
-              className="input-field"
-              placeholder="Enter project name"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Project Description
-            </label>
-            <textarea
-              {...register('projectDescription')}
-              rows={4}
-              className="input-field"
-              placeholder="Describe your project requirements..."
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Budget Range
-              </label>
-              <select
-                {...register('budget')}
-                className="input-field"
-              >
-                <option value="">Select budget range</option>
-                <option value="1000-5000">$1,000 - $5,000</option>
-                <option value="5000-10000">$5,000 - $10,000</option>
-                <option value="10000-25000">$10,000 - $25,000</option>
-                <option value="25000+">$25,000+</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Timeline
-              </label>
-              <select
-                {...register('timeline')}
-                className="input-field"
-              >
-                <option value="">Select timeline</option>
-                <option value="1-2-weeks">1-2 weeks</option>
-                <option value="1-month">1 month</option>
-                <option value="2-3-months">2-3 months</option>
-                <option value="3+months">3+ months</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Building className="h-4 w-4 inline mr-1" />
               Company Size
             </label>
             <select className="input-field">
@@ -368,7 +308,7 @@ function Onboarding() {
               <option value="200+">200+ employees</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Industry
@@ -383,6 +323,10 @@ function Onboarding() {
               <option value="other">Other</option>
             </select>
           </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <p className="text-gray-600">No additional information needed.</p>
         </div>
       )}
 
@@ -419,7 +363,7 @@ function Onboarding() {
       </div>
       <div className="bg-green-50 p-4 rounded-lg">
         <p className="text-sm text-green-800">
-          <strong>Access Type:</strong> {selectedRole === 'client' ? 'Client' : 'Admin'}
+          <strong>Access Type:</strong> {selectedRole === 'employer' ? 'Employer' : 'Employee'}
         </p>
       </div>
       <div className="text-sm text-gray-600">
