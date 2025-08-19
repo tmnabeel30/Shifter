@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form';
 import { Plus, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
-import { addTask } from '../firebase/tasks';
+import { addTask, type Task, updateTaskStatus } from '../firebase/tasks';
+import { useTasks } from '../hooks/useTasks';
 import { getClients, type Client } from '../firebase/clients';
 
 interface TaskForm {
@@ -17,6 +18,8 @@ function CreateTask() {
   const [employees, setEmployees] = useState<Client[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const { currentUser } = useAuth();
+
+  const tasks: Task[] = useTasks(currentUser?.id, true);
 
   const { register, handleSubmit, reset, setValue } = useForm<TaskForm>();
 
@@ -63,6 +66,18 @@ function CreateTask() {
       reset();
     } catch {
       toast.error('Failed to create task');
+    }
+  };
+
+  const handleStatusChange = async (
+    taskId: string,
+    status: Task['status']
+  ) => {
+    try {
+      await updateTaskStatus(taskId, status);
+      toast.success('Task updated');
+    } catch {
+      toast.error('Failed to update task');
     }
   };
 
@@ -152,6 +167,51 @@ function CreateTask() {
           </form>
         </div>
       )}
+
+      <div className="card">
+        {tasks.length ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assignee</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {tasks.map(task => (
+                  <tr key={task.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.title}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.assigneeName}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <select
+                        value={task.status}
+                        onChange={(e) =>
+                          handleStatusChange(
+                            task.id,
+                            e.target.value as Task['status']
+                          )
+                        }
+                        className="input-field capitalize"
+                      >
+                        <option value="todo">todo</option>
+                        <option value="in-progress">in-progress</option>
+                        <option value="review">review</option>
+                        <option value="done">done</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.dueDate}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-gray-600">No tasks created.</p>
+        )}
+      </div>
     </div>
   );
 }
