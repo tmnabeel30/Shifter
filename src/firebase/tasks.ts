@@ -20,6 +20,7 @@ export interface Task {
   title: string;
   assigneeId: string;
   assigneeName: string;
+  ownerId: string;
   status: 'todo' | 'in-progress' | 'review' | 'done';
   dueDate: string;
   createdAt: string;
@@ -31,6 +32,7 @@ export interface TaskInput {
   title: string;
   assigneeId: string;
   assigneeName: string;
+  ownerId: string;
   status?: Task['status'];
   dueDate: string;
 }
@@ -64,6 +66,7 @@ export const docToTask = (
     title: data.title || '',
     assigneeId: data.assigneeId || '',
     assigneeName: data.assigneeName || '',
+    ownerId: data.ownerId || '',
     status: data.status || 'todo',
     dueDate: data.dueDate || '',
     createdAt:
@@ -80,14 +83,16 @@ export const getTasksForUser = async (
   try {
     const tasksRef = collection(db, 'tasks');
     const q = isEmployer
-      ? query(tasksRef, orderBy('dueDate', 'asc'))
+      ? query(tasksRef, where('ownerId', '==', userId), orderBy('dueDate', 'asc'))
       : query(tasksRef, where('assigneeId', '==', userId), orderBy('dueDate', 'asc'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(docToTask);
   } catch (error) {
     console.error('Error fetching tasks:', error);
     const tasks = loadLocalTasks();
-    return isEmployer ? tasks : tasks.filter(t => t.assigneeId === userId);
+    return isEmployer
+      ? tasks.filter(t => t.ownerId === userId)
+      : tasks.filter(t => t.assigneeId === userId);
   }
 };
 
@@ -115,6 +120,7 @@ export const addTask = async (task: TaskInput): Promise<Task> => {
       title: task.title,
       assigneeId: task.assigneeId,
       assigneeName: task.assigneeName,
+      ownerId: task.ownerId,
       status: task.status || 'todo',
       dueDate: task.dueDate,
       createdAt: new Date().toISOString().split('T')[0],
