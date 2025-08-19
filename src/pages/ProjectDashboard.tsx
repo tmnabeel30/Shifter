@@ -61,6 +61,7 @@ function ProjectDashboard() {
         title: data.title,
         assigneeId: data.assigneeId,
         assigneeName: assignee?.name || '',
+        ownerId: currentUser?.id || '',
         dueDate: data.dueDate,
       });
       toast.success('Task created');

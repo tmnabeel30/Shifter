@@ -7,7 +7,7 @@ export function useTasks(userId?: string, isEmployer = false) {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
-    if (!userId && !isEmployer) return;
+    if (!userId) return;
 
     // Initial fetch with offline fallback
     getTasksForUser(userId, isEmployer)
@@ -18,7 +18,7 @@ export function useTasks(userId?: string, isEmployer = false) {
 
     const tasksRef = collection(db, 'tasks');
     const q = isEmployer
-      ? query(tasksRef, orderBy('dueDate', 'asc'))
+      ? query(tasksRef, where('ownerId', '==', userId), orderBy('dueDate', 'asc'))
       : query(tasksRef, where('assigneeId', '==', userId), orderBy('dueDate', 'asc'));
     const unsubscribe = onSnapshot(
       q,

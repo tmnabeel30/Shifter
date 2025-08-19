@@ -59,6 +59,7 @@ function CreateTask() {
         title: data.title,
         assigneeId: data.assigneeId,
         assigneeName: assignee?.name || '',
+        ownerId: currentUser?.id || '',
         dueDate,
       });
       toast.success('Task created successfully!');
