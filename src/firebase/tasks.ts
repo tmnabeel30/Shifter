@@ -73,15 +73,21 @@ export const docToTask = (
   };
 };
 
-export const getTasksForUser = async (userId: string): Promise<Task[]> => {
+export const getTasksForUser = async (
+  userId?: string,
+  isEmployer = false
+): Promise<Task[]> => {
   try {
     const tasksRef = collection(db, 'tasks');
-    const q = query(tasksRef, where('assigneeId', '==', userId), orderBy('dueDate', 'asc'));
+    const q = isEmployer
+      ? query(tasksRef, orderBy('dueDate', 'asc'))
+      : query(tasksRef, where('assigneeId', '==', userId), orderBy('dueDate', 'asc'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(docToTask);
   } catch (error) {
     console.error('Error fetching tasks:', error);
-    return loadLocalTasks().filter(t => t.assigneeId === userId);
+    const tasks = loadLocalTasks();
+    return isEmployer ? tasks : tasks.filter(t => t.assigneeId === userId);
   }
 };
 
