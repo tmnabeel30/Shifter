@@ -5,7 +5,10 @@ import { Task, updateTaskStatus } from '../firebase/tasks';
 
 function Tasks() {
   const { currentUser } = useAuth();
-  const tasks: Task[] = useTasks(currentUser?.id);
+  const tasks: Task[] = useTasks(
+    currentUser?.id,
+    currentUser?.role === 'employer'
+  );
 
   const handleStatusChange = async (
     taskId: string,
@@ -21,7 +24,9 @@ function Tasks() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">My Tasks</h1>
+      <h1 className="text-2xl font-bold text-gray-900">
+        {currentUser?.role === 'employer' ? 'All Tasks' : 'My Tasks'}
+      </h1>
       <div className="card">
         {tasks.length ? (
           <div className="overflow-x-auto">

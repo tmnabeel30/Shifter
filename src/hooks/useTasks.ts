@@ -3,19 +3,23 @@ import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestor
 import { db } from '../firebase/config';
 import { Task, docToTask, getTasksForUser } from '../firebase/tasks';
 
-export function useTasks(userId?: string) {
+export function useTasks(userId?: string, isEmployer = false) {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId && !isEmployer) return;
 
     // Initial fetch with offline fallback
-    getTasksForUser(userId).then(setTasks).catch(() => {
-      setTasks([]);
-    });
+    getTasksForUser(userId, isEmployer)
+      .then(setTasks)
+      .catch(() => {
+        setTasks([]);
+      });
 
     const tasksRef = collection(db, 'tasks');
-    const q = query(tasksRef, where('assigneeId', '==', userId), orderBy('dueDate', 'asc'));
+    const q = isEmployer
+      ? query(tasksRef, orderBy('dueDate', 'asc'))
+      : query(tasksRef, where('assigneeId', '==', userId), orderBy('dueDate', 'asc'));
     const unsubscribe = onSnapshot(
       q,
       snapshot => {
@@ -27,7 +31,7 @@ export function useTasks(userId?: string) {
     );
 
     return unsubscribe;
-  }, [userId]);
+  }, [userId, isEmployer]);
 
   return tasks;
 }
