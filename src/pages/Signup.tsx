@@ -10,6 +10,7 @@ interface SignupForm {
   email: string;
   password: string;
   confirmPassword: string;
+  role: 'employer' | 'employee';
 }
 
 function Signup() {
@@ -32,7 +33,7 @@ function Signup() {
     try {
       setLoading(true);
       console.log('Attempting to create account with:', data.email);
-      await signup(data.email, data.password, data.name);
+      await signup(data.email, data.password, data.name, data.role);
       toast.success('Account created successfully!');
       navigate('/onboarding');
     } catch (error: any) {
@@ -77,7 +78,7 @@ function Signup() {
             </Link>
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div>
@@ -125,6 +126,23 @@ function Signup() {
               </div>
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Role
+              </label>
+              <select
+                {...register('role', { required: 'Role is required' })}
+                className="input-field"
+                defaultValue="employer"
+              >
+                <option value="employer">Employer</option>
+                <option value="employee">Employee</option>
+              </select>
+              {errors.role && (
+                <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>
               )}
             </div>
 

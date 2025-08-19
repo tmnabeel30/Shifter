@@ -75,7 +75,14 @@ function App() {
             >
             <Route index element={<Navigate to="/dashboard" />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="employees" element={<Employees />} />
+            <Route
+              path="employees"
+              element={
+                currentUser?.role === 'employer' || currentUser?.role === 'admin'
+                  ? <Employees />
+                  : <Navigate to="/tasks" />
+              }
+            />
             <Route path="invoices" element={<Invoices />} />
             <Route path="projects" element={<Projects />} />
             <Route path="projects/:projectId" element={<ProjectDashboard />} />
@@ -83,7 +90,14 @@ function App() {
             <Route path="files" element={<Files />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="settings" element={<Settings />} />
-            <Route path="create-task" element={<CreateTask />} />
+            <Route
+              path="create-task"
+              element={
+                currentUser?.role === 'employer'
+                  ? <CreateTask />
+                  : <Navigate to="/tasks" />
+              }
+            />
             <Route path="project-requests" element={<ProjectRequestManagement />} />
           </Route>
         </Routes>

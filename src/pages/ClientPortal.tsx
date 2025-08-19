@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { CheckCircle, DollarSign, FileText, Download } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { getInvoices, Invoice } from '../firebase/invoices';
-import { getProjects, Project } from '../firebase/projects';
-import { getFilesByClient, FileItem } from '../firebase/files';
+import { Invoice, docToInvoice } from '../firebase/invoices';
+import { Project, docToProject } from '../firebase/projects';
+import { FileItem, docToFileItem } from '../firebase/files';
+import { db } from '../firebase/config';
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 
 function ClientPortal() {
   const { currentUser } = useAuth();
@@ -13,18 +15,44 @@ function ClientPortal() {
   const [files, setFiles] = useState<FileItem[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!currentUser) return;
-      const [invoiceData, projectData, fileData] = await Promise.all([
-        getInvoices(currentUser.id, 'client'),
-        getProjects(currentUser.id),
-        getFilesByClient(currentUser.id),
-      ]);
-      setInvoices(invoiceData);
-      setProjects(projectData);
-      setFiles(fileData);
+    if (!currentUser) return;
+
+    const invoicesRef = collection(db, 'invoices');
+    const invoicesQuery = query(
+      invoicesRef,
+      where('employeeId', '==', currentUser.id),
+      orderBy('createdAt', 'desc')
+    );
+    const unsubscribeInvoices = onSnapshot(invoicesQuery, snapshot => {
+      setInvoices(snapshot.docs.map(docToInvoice));
+    });
+
+    const projectsRef = collection(db, 'projects');
+    const projectsQuery = query(
+      projectsRef,
+      where('clientId', '==', currentUser.id),
+      orderBy('createdAt', 'desc')
+    );
+    const unsubscribeProjects = onSnapshot(projectsQuery, snapshot => {
+      setProjects(snapshot.docs.map(docToProject));
+    });
+
+    const filesRef = collection(db, 'files');
+    const filesQuery = query(
+      filesRef,
+      where('clientId', '==', currentUser.id),
+      where('shared', '==', true),
+      orderBy('uploadedAt', 'desc')
+    );
+    const unsubscribeFiles = onSnapshot(filesQuery, snapshot => {
+      setFiles(snapshot.docs.map(docToFileItem));
+    });
+
+    return () => {
+      unsubscribeInvoices();
+      unsubscribeProjects();
+      unsubscribeFiles();
     };
-    fetchData();
   }, [currentUser]);
 
   const tabs = [

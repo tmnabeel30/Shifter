@@ -32,6 +32,7 @@ function Onboarding() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
   } = useForm<OnboardingForm>();
 
 
@@ -51,6 +52,7 @@ function Onboarding() {
 
   const handleRoleSelect = (role: 'employer' | 'employee') => {
     setSelectedRole(role);
+    setValue('role', role);
     setCurrentStep(3);
   };
 

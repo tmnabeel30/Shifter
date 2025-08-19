@@ -45,7 +45,7 @@ export interface FileUploadData {
 }
 
 // Convert Firestore document to FileItem object
-const docToFileItem = (doc: QueryDocumentSnapshot<DocumentData>): FileItem => {
+export const docToFileItem = (doc: QueryDocumentSnapshot<DocumentData>): FileItem => {
   const data = doc.data();
   return {
     id: doc.id,
