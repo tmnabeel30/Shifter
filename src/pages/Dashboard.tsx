@@ -117,12 +117,12 @@ function Dashboard() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600">
-          Welcome back, {currentUser?.name}! Here's what's happening with your {currentUser?.role === 'client' ? 'projects' : 'business'}.
+          Welcome back, {currentUser?.name}! Here's what's happening with your {currentUser?.role === 'employer' ? 'projects' : 'business'}.
         </p>
       </div>
 
       {/* Role-specific Quick Actions */}
-      {currentUser?.role === 'client' && (
+      {currentUser?.role === 'employer' && (
         <div className="card bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
           <div className="flex items-center justify-between">
             <div>

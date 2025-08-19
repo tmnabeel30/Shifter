@@ -18,13 +18,15 @@ function Sidebar() {
 
   // Navigation items based on user role
   const getNavigation = () => {
-    if (currentUser?.role === 'client') {
+    if (currentUser?.role === 'employer') {
       return [
         { name: 'Dashboard', href: '/dashboard', icon: Home },
         { name: 'Create Task', href: '/create-task', icon: CheckSquare },
         { name: 'Employees', href: '/employees', icon: Users },
-        { name: 'My Projects', href: '/projects', icon: FolderOpen },
+        { name: 'Projects', href: '/projects', icon: FolderOpen },
+        { name: 'Invoices', href: '/invoices', icon: FileText },
         { name: 'Files', href: '/files', icon: Upload },
+        { name: 'Analytics', href: '/analytics', icon: BarChart3 },
         { name: 'Settings', href: '/settings', icon: SettingsIcon },
       ];
     } else if (currentUser?.role === 'admin') {
@@ -39,14 +41,12 @@ function Sidebar() {
         { name: 'Settings', href: '/settings', icon: SettingsIcon },
       ];
     } else {
-      // Default navigation for employers
+      // Default navigation for employees
       return [
         { name: 'Dashboard', href: '/dashboard', icon: Home },
-        { name: 'Invoices', href: '/invoices', icon: FileText },
-        { name: 'Projects', href: '/projects', icon: FolderOpen },
         { name: 'My Tasks', href: '/tasks', icon: CheckSquare },
+        { name: 'Projects', href: '/projects', icon: FolderOpen },
         { name: 'Files', href: '/files', icon: Upload },
-        { name: 'Analytics', href: '/analytics', icon: BarChart3 },
         { name: 'Settings', href: '/settings', icon: SettingsIcon },
       ];
     }
@@ -62,13 +62,15 @@ function Sidebar() {
             <div className="flex items-center flex-shrink-0 px-4">
               <h1 className="text-xl font-bold text-gray-900">Shifter</h1>
               {currentUser?.role && (
-                <span className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${
-                  currentUser.role === 'admin' 
-                    ? 'bg-purple-100 text-purple-800' 
-                    : currentUser.role === 'client'
-                    ? 'bg-blue-100 text-blue-800'
-                    : 'bg-green-100 text-green-800'
-                }`}>
+                <span
+                  className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${
+                    currentUser.role === 'admin'
+                      ? 'bg-purple-100 text-purple-800'
+                      : currentUser.role === 'employer'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-green-100 text-green-800'
+                  }`}
+                >
                   {currentUser.role}
                 </span>
               )}

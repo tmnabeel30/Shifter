@@ -19,14 +19,14 @@ function Invoices() {
 
   const handleCreateInvoice = async () => {
     if (!currentUser) return;
-    const clientName = prompt('Client Name');
+    const employeeName = prompt('Employee Name');
     const amountStr = prompt('Amount');
     const dueDate = prompt('Due Date (YYYY-MM-DD)');
     const invoiceNumber = prompt('Invoice Number');
-    if (!clientName || !amountStr || !dueDate || !invoiceNumber) return;
+    if (!employeeName || !amountStr || !dueDate || !invoiceNumber) return;
     const newInvoice = await addInvoice({
-      clientId: currentUser.id,
-      clientName,
+      employeeId: currentUser.id,
+      employeeName,
       amount: parseFloat(amountStr),
       dueDate,
       invoiceNumber,
@@ -79,7 +79,7 @@ function Invoices() {
                   Invoice
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Client
+                  Employee
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Amount
@@ -104,7 +104,7 @@ function Invoices() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{invoice.clientName}</div>
+                    <div className="text-sm text-gray-900">{invoice.employeeName}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">

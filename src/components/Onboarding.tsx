@@ -19,12 +19,12 @@ interface OnboardingForm {
   company?: string;
   phone?: string;
   website?: string;
-  role: 'employer' | 'team_member';
+  role: 'employer' | 'employee';
 }
 
 function Onboarding() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedRole, setSelectedRole] = useState<'employer' | 'team_member' | null>(null);
+  const [selectedRole, setSelectedRole] = useState<'employer' | 'employee' | null>(null);
   const { currentUser, updateUserRole, completeOnboarding } = useAuth();
   const navigate = useNavigate();
 
@@ -49,7 +49,7 @@ function Onboarding() {
     { id: 5, title: 'Complete', description: 'You\'re all set!' },
   ];
 
-  const handleRoleSelect = (role: 'employer' | 'team_member') => {
+  const handleRoleSelect = (role: 'employer' | 'employee') => {
     setSelectedRole(role);
     setCurrentStep(3);
   };
@@ -148,9 +148,9 @@ function Onboarding() {
         {/* Employee Option */}
         <div
           className={`card cursor-pointer transition-all duration-200 hover:shadow-lg ${
-            selectedRole === 'team_member' ? 'ring-2 ring-primary-500 bg-primary-50' : ''
+            selectedRole === 'employee' ? 'ring-2 ring-primary-500 bg-primary-50' : ''
           }`}
-          onClick={() => handleRoleSelect('team_member')}
+          onClick={() => handleRoleSelect('employee')}
         >
           <div className="text-center space-y-4">
             <div className="mx-auto w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">

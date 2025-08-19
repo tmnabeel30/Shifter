@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { Task, addTask, docToTask } from '../firebase/tasks';
-import { getClients, Client } from '../firebase/clients';
+import { getEmployees, Employee } from '../firebase/employees';
 import { useAuth } from '../contexts/AuthContext';
 
 interface TaskForm {
@@ -19,7 +19,7 @@ function ProjectDashboard() {
   const { projectId } = useParams();
   const { currentUser } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [employees, setEmployees] = useState<Client[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [showForm, setShowForm] = useState(false);
 
   const {
@@ -35,7 +35,7 @@ function ProjectDashboard() {
     const q = query(tasksRef, where('projectId', '==', projectId), orderBy('dueDate', 'asc'));
     const unsubscribe = onSnapshot(q, snapshot => {
       const all = snapshot.docs.map(docToTask);
-      const filtered = currentUser?.role === 'team_member'
+      const filtered = currentUser?.role === 'employee'
         ? all.filter(t => t.assigneeId === currentUser.id)
         : all;
       setTasks(filtered);
@@ -46,7 +46,7 @@ function ProjectDashboard() {
   useEffect(() => {
     const fetchEmployees = async () => {
       if (!currentUser) return;
-      const list = await getClients(currentUser.id);
+      const list = await getEmployees(currentUser.id);
       setEmployees(list);
     };
     fetchEmployees();
