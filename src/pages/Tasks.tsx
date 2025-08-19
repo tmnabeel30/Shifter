@@ -50,25 +50,44 @@ function Tasks() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.title}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.projectId}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {currentUser?.id === task.assigneeId ? (
-                        <select
-                          value={task.status}
-                          onChange={(e) =>
-                            handleStatusChange(
-                              task,
-                              e.target.value as Task['status']
-                            )
-                          }
-                          className="input-field capitalize"
-                        >
-                          <option value="todo">todo</option>
-                          <option value="in-progress">in-progress</option>
-                          <option value="review">review</option>
-                          <option value="done">done</option>
-                        </select>
-                      ) : (
-                        <span className="capitalize">{task.status}</span>
-                      )}
+                      {(() => {
+                        const statusOptions: Task['status'][] = [
+                          'todo',
+                          'in-progress',
+                          'review',
+                          'done',
+                        ];
+                        const value = statusOptions.indexOf(task.status);
+                        if (currentUser?.id === task.assigneeId) {
+                          return (
+                            <input
+                              type="range"
+                              min={0}
+                              max={statusOptions.length - 1}
+                              step={1}
+                              value={value}
+                              onChange={(e) =>
+                                handleStatusChange(
+                                  task,
+                                  statusOptions[Number(e.target.value)]
+                                )
+                              }
+                              className="w-full"
+                            />
+                          );
+                        }
+                        return (
+                          <input
+                            type="range"
+                            min={0}
+                            max={statusOptions.length - 1}
+                            step={1}
+                            value={value}
+                            disabled
+                            className="w-full"
+                          />
+                        );
+                      })()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.dueDate}</td>
                   </tr>

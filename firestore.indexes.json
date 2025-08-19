@@ -33,7 +33,7 @@
       ]
     },
     {
-      "collectionGroup": "clients",
+      "collectionGroup": "employees",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "ownerId", "order": "ASCENDING" },

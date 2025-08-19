@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'employer' | 'client' | 'team_member';
+export type UserRole = 'admin' | 'employer' | 'employee';
 
 export interface User {
   id: string;
@@ -19,7 +19,13 @@ export interface User {
 }
 
 export interface Permission {
-  resource: 'clients' | 'invoices' | 'projects' | 'files' | 'settings' | 'analytics';
+  resource:
+    | 'employees'
+    | 'invoices'
+    | 'projects'
+    | 'files'
+    | 'settings'
+    | 'analytics';
   actions: ('create' | 'read' | 'update' | 'delete')[];
 }
 
@@ -36,7 +42,7 @@ export interface TeamMember {
 
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   admin: [
-    { resource: 'clients', actions: ['create', 'read', 'update', 'delete'] },
+    { resource: 'employees', actions: ['create', 'read', 'update', 'delete'] },
     { resource: 'invoices', actions: ['create', 'read', 'update', 'delete'] },
     { resource: 'projects', actions: ['create', 'read', 'update', 'delete'] },
     { resource: 'files', actions: ['create', 'read', 'update', 'delete'] },
@@ -44,23 +50,15 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     { resource: 'analytics', actions: ['read'] },
   ],
   employer: [
-    { resource: 'clients', actions: ['create', 'read', 'update'] },
+    { resource: 'employees', actions: ['create', 'read', 'update'] },
     { resource: 'invoices', actions: ['create', 'read', 'update'] },
     { resource: 'projects', actions: ['create', 'read', 'update'] },
     { resource: 'files', actions: ['create', 'read', 'update'] },
     { resource: 'settings', actions: ['read', 'update'] },
     { resource: 'analytics', actions: ['read'] },
   ],
-  client: [
-    { resource: 'clients', actions: ['read'] },
-    { resource: 'invoices', actions: ['read'] },
-    { resource: 'projects', actions: ['read'] },
-    { resource: 'files', actions: ['read'] },
-    { resource: 'settings', actions: ['read'] },
-    { resource: 'analytics', actions: ['read'] },
-  ],
-  team_member: [
-    { resource: 'clients', actions: ['read'] },
+  employee: [
+    { resource: 'employees', actions: ['read'] },
     { resource: 'invoices', actions: ['read'] },
     { resource: 'projects', actions: ['read', 'update'] },
     { resource: 'files', actions: ['read', 'update'] },

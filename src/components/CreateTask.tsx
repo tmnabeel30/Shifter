@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form';
 import { Plus, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
-import { addTask, type Task, updateTaskStatus } from '../firebase/tasks';
+import { addTask, type Task } from '../firebase/tasks';
 import { useTasks } from '../hooks/useTasks';
-import { getClients, type Client } from '../firebase/clients';
+import { getEmployees, type Employee } from '../firebase/employees';
 
 interface TaskForm {
   title: string;
@@ -15,7 +15,7 @@ interface TaskForm {
 
 function CreateTask() {
   const [showForm, setShowForm] = useState(false);
-  const [employees, setEmployees] = useState<Client[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const { currentUser } = useAuth();
 
@@ -26,7 +26,7 @@ function CreateTask() {
   useEffect(() => {
     const fetchEmployees = async () => {
       if (!currentUser) return;
-      const list = await getClients(currentUser.id);
+      const list = await getEmployees(currentUser.id);
       setEmployees(list);
     };
     fetchEmployees();
@@ -69,17 +69,12 @@ function CreateTask() {
     }
   };
 
-  const handleStatusChange = async (
-    taskId: string,
-    status: Task['status']
-  ) => {
-    try {
-      await updateTaskStatus(taskId, status);
-      toast.success('Task updated');
-    } catch {
-      toast.error('Failed to update task');
-    }
-  };
+  const statusOptions: Task['status'][] = [
+    'todo',
+    'in-progress',
+    'review',
+    'done',
+  ];
 
   return (
     <div className="space-y-6">
@@ -186,21 +181,15 @@ function CreateTask() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.title}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.assigneeName}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <select
-                        value={task.status}
-                        onChange={(e) =>
-                          handleStatusChange(
-                            task.id,
-                            e.target.value as Task['status']
-                          )
-                        }
-                        className="input-field capitalize"
-                      >
-                        <option value="todo">todo</option>
-                        <option value="in-progress">in-progress</option>
-                        <option value="review">review</option>
-                        <option value="done">done</option>
-                      </select>
+                      <input
+                        type="range"
+                        min={0}
+                        max={statusOptions.length - 1}
+                        step={1}
+                        value={statusOptions.indexOf(task.status)}
+                        disabled
+                        className="w-full"
+                      />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.dueDate}</td>
                   </tr>

@@ -12,21 +12,21 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
-  getClients,
-  addClient,
-  updateClient,
-  deleteClient,
-  updateClientStatus,
-  type Client,
-  type ClientFormData
-} from '../firebase/clients';
+  getEmployees,
+  addEmployee,
+  updateEmployee,
+  deleteEmployee,
+  updateEmployeeStatus,
+  type Employee,
+  type EmployeeFormData
+} from '../firebase/employees';
 import { useAuth } from '../contexts/AuthContext';
 
 function Employees() {
-  const [clients, setClients] = useState<Client[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const { currentUser } = useAuth();
@@ -36,15 +36,15 @@ function Employees() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<ClientFormData>();
+  } = useForm<EmployeeFormData>();
 
   useEffect(() => {
-    const fetchClients = async () => {
+    const fetchEmployees = async () => {
       if (!currentUser) return;
       try {
         setIsLoading(true);
-        const fetchedClients = await getClients(currentUser.id);
-        setClients(fetchedClients);
+        const fetchedEmployees = await getEmployees(currentUser.id);
+        setEmployees(fetchedEmployees);
       } catch (error) {
         console.error('Error fetching employees:', error);
         toast.error('Failed to load employees');
@@ -53,34 +53,34 @@ function Employees() {
       }
     };
 
-    fetchClients();
+    fetchEmployees();
   }, [currentUser]);
 
-  const onSubmit = async (data: ClientFormData) => {
+  const onSubmit = async (data: EmployeeFormData) => {
     try {
       setLoading(true);
       
-      if (editingClient) {
+      if (editingEmployee) {
         // Update existing employee
-        await updateClient(editingClient.id, data);
-        setClients(prevClients =>
-          prevClients.map(client =>
-            client.id === editingClient.id
-              ? { ...client, ...data }
-              : client
+        await updateEmployee(editingEmployee.id, data);
+        setEmployees(prevEmployees =>
+          prevEmployees.map(employee =>
+            employee.id === editingEmployee.id
+              ? { ...employee, ...data }
+              : employee
           )
         );
         toast.success('Employee updated successfully!');
       } else {
         // Add new employee
         if (!currentUser) throw new Error('Not authenticated');
-        const newClient = await addClient(data, currentUser.id);
-        setClients(prevClients => [newClient, ...prevClients]);
+        const newEmployee = await addEmployee(data, currentUser.id);
+        setEmployees(prevEmployees => [newEmployee, ...prevEmployees]);
         toast.success('Employee added successfully!');
       }
       
       setShowForm(false);
-      setEditingClient(null);
+      setEditingEmployee(null);
       reset();
     } catch (error) {
       console.error('Error saving employee:', error);
@@ -90,16 +90,16 @@ function Employees() {
     }
   };
 
-  const handleEdit = (client: Client) => {
-    setEditingClient(client);
+  const handleEdit = (employee: Employee) => {
+    setEditingEmployee(employee);
     setShowForm(true);
-    reset(client);
+    reset(employee);
   };
 
-  const handleDelete = async (clientId: string) => {
+  const handleDelete = async (employeeId: string) => {
     try {
-      await deleteClient(clientId);
-      setClients(prevClients => prevClients.filter(client => client.id !== clientId));
+      await deleteEmployee(employeeId);
+      setEmployees(prevEmployees => prevEmployees.filter(employee => employee.id !== employeeId));
       toast.success('Employee deleted successfully!');
     } catch (error) {
       console.error('Error deleting employee:', error);
@@ -112,10 +112,10 @@ function Employees() {
     toast.success('Portal URL copied to clipboard!');
   };
 
-  const filteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.company.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredEmployees = employees.filter(employee =>
+    employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    employee.company.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -150,7 +150,7 @@ function Employees() {
       {showForm && (
         <div className="card">
           <h2 className="text-lg font-medium text-gray-900 mb-4">
-            {editingClient ? 'Edit Employee' : 'Add New Employee'}
+            {editingEmployee ? 'Edit Employee' : 'Add New Employee'}
           </h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -205,7 +205,7 @@ function Employees() {
                 type="button"
                 onClick={() => {
                   setShowForm(false);
-                  setEditingClient(null);
+                  setEditingEmployee(null);
                   reset();
                 }}
                 className="btn-secondary"
@@ -217,7 +217,7 @@ function Employees() {
                 className="btn-primary"
                 disabled={loading}
               >
-                {loading ? 'Saving...' : (editingClient ? 'Update Employee' : 'Add Employee')}
+                {loading ? 'Saving...' : (editingEmployee ? 'Update Employee' : 'Add Employee')}
               </button>
             </div>
           </form>
@@ -254,24 +254,24 @@ function Employees() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredClients.map((client) => (
-                  <tr key={client.id} className="hover:bg-gray-50">
+                {filteredEmployees.map((employee) => (
+                  <tr key={employee.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{client.name}</div>
-                        <div className="text-sm text-gray-500">{client.company}</div>
+                        <div className="text-sm font-medium text-gray-900">{employee.name}</div>
+                        <div className="text-sm text-gray-500">{employee.company}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="space-y-1">
                         <div className="flex items-center text-sm text-gray-900">
                           <Mail className="h-4 w-4 mr-2" />
-                          {client.email}
+                          {employee.email}
                         </div>
-                        {client.phone && (
+                        {employee.phone && (
                           <div className="flex items-center text-sm text-gray-500">
                             <Phone className="h-4 w-4 mr-2" />
-                            {client.phone}
+                            {employee.phone}
                           </div>
                         )}
                       </div>
@@ -279,10 +279,10 @@ function Employees() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-gray-900 truncate max-w-xs">
-                          {client.portalUrl}
+                          {employee.portalUrl}
                         </span>
                         <button
-                          onClick={() => copyPortalUrl(client.portalUrl)}
+                          onClick={() => copyPortalUrl(employee.portalUrl)}
                           className="text-gray-400 hover:text-gray-600"
                         >
                           <Copy className="h-4 w-4" />
@@ -294,17 +294,17 @@ function Employees() {
                         onClick={async () => {
                           try {
                             const newStatus =
-                              client.status === 'active'
+                              employee.status === 'active'
                                 ? 'inactive'
                                 : 'active';
                             const finalStatus =
-                              client.status === 'request-sent'
+                              employee.status === 'request-sent'
                                 ? 'active'
                                 : newStatus;
-                            await updateClientStatus(client.id, finalStatus);
-                            setClients(prevClients =>
-                              prevClients.map(c =>
-                                c.id === client.id ? { ...c, status: finalStatus } : c
+                            await updateEmployeeStatus(employee.id, finalStatus);
+                            setEmployees(prevEmployees =>
+                              prevEmployees.map(c =>
+                                c.id === employee.id ? { ...c, status: finalStatus } : c
                               )
                             );
                             toast.success(`Employee ${finalStatus}`);
@@ -313,30 +313,30 @@ function Employees() {
                           }
                         }}
                         className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full cursor-pointer transition-colors ${
-                          client.status === 'active'
+                          employee.status === 'active'
                             ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                            : client.status === 'inactive'
+                            : employee.status === 'inactive'
                             ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                             : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                         }`}>
-                        {client.status}
+                        {employee.status}
                       </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <button
-                        onClick={() => window.open(client.portalUrl, '_blank')}
+                        onClick={() => window.open(employee.portalUrl, '_blank')}
                         className="text-blue-600 hover:text-blue-900"
                       >
                         <Eye className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleEdit(client)}
+                        onClick={() => handleEdit(employee)}
                         className="text-indigo-600 hover:text-indigo-900"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(client.id)}
+                        onClick={() => handleDelete(employee.id)}
                         className="text-red-600 hover:text-red-900"
                       >
                         <Trash2 className="h-4 w-4" />

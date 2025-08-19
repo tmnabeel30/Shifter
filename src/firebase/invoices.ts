@@ -16,8 +16,8 @@ import { db } from './config';
 
 export interface Invoice {
   id: string;
-  clientId: string;
-  clientName: string;
+  employeeId: string;
+  employeeName: string;
   amount: number;
   status: 'pending' | 'paid' | 'overdue';
   dueDate: string;
@@ -27,8 +27,8 @@ export interface Invoice {
 }
 
 export interface InvoiceInput {
-  clientId: string;
-  clientName: string;
+  employeeId: string;
+  employeeName: string;
   amount: number;
   dueDate: string;
   invoiceNumber: string;
@@ -41,8 +41,8 @@ const docToInvoice = (
   const data = docSnap.data();
   return {
     id: docSnap.id,
-    clientId: data.clientId || '',
-    clientName: data.clientName || '',
+    employeeId: data.employeeId || '',
+    employeeName: data.employeeName || '',
     amount: data.amount || 0,
     status: data.status || 'pending',
     dueDate: data.dueDate || '',
@@ -61,10 +61,10 @@ export const getInvoices = async (
   try {
     const invoicesRef = collection(db, 'invoices');
     const q =
-      role === 'client' && userId
+      role === 'employee' && userId
         ? query(
             invoicesRef,
-            where('clientId', '==', userId),
+            where('employeeId', '==', userId),
             orderBy('createdAt', 'desc')
           )
         : query(invoicesRef, orderBy('createdAt', 'desc'));

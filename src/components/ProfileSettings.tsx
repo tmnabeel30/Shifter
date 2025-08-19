@@ -241,7 +241,7 @@ function ProfileSettings() {
           >
             <option value="employer">Employer</option>
             <option value="admin">Admin</option>
-            <option value="team_member">Team Member</option>
+            <option value="employee">Employee</option>
           </select>
         </div>
 
