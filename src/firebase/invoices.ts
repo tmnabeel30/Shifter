@@ -35,7 +35,7 @@ export interface InvoiceInput {
   status?: Invoice['status'];
 }
 
-const docToInvoice = (
+export const docToInvoice = (
   docSnap: QueryDocumentSnapshot<DocumentData>
 ): Invoice => {
   const data = docSnap.data();
