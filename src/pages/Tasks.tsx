@@ -11,11 +11,16 @@ function Tasks() {
   );
 
   const handleStatusChange = async (
-    taskId: string,
+    task: Task,
     status: Task['status']
   ) => {
+    if (currentUser?.id !== task.assigneeId) {
+      toast.error('Only the assigned user can update this task');
+      return;
+    }
+
     try {
-      await updateTaskStatus(taskId, status);
+      await updateTaskStatus(task.id, status);
       toast.success('Task updated');
     } catch {
       toast.error('Failed to update task');
@@ -45,21 +50,25 @@ function Tasks() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{task.title}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.projectId}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <select
-                        value={task.status}
-                        onChange={(e) =>
-                          handleStatusChange(
-                            task.id,
-                            e.target.value as Task['status']
-                          )
-                        }
-                        className="input-field capitalize"
-                      >
-                        <option value="todo">todo</option>
-                        <option value="in-progress">in-progress</option>
-                        <option value="review">review</option>
-                        <option value="done">done</option>
-                      </select>
+                      {currentUser?.id === task.assigneeId ? (
+                        <select
+                          value={task.status}
+                          onChange={(e) =>
+                            handleStatusChange(
+                              task,
+                              e.target.value as Task['status']
+                            )
+                          }
+                          className="input-field capitalize"
+                        >
+                          <option value="todo">todo</option>
+                          <option value="in-progress">in-progress</option>
+                          <option value="review">review</option>
+                          <option value="done">done</option>
+                        </select>
+                      ) : (
+                        <span className="capitalize">{task.status}</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{task.dueDate}</td>
                   </tr>
